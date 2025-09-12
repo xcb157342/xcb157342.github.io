@@ -11,19 +11,14 @@
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
         
-        // 页面加载时检查设备类型
-        document.addEventListener('DOMContentLoaded', function() {
-            // 检查URL参数，如果指定了设备类型则不重定向
-            const urlParams = new URLSearchParams(window.location.search);
-            const deviceType = urlParams.get('device');
-            
-            if (!deviceType) {
-                if (isMobile()) {
-                    // 重定向到移动端页面
-                    window.location.href = 'mobile.html';
-                }
-            }
-        });
+        // 在页面渲染前检查设备类型并重定向
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceType = urlParams.get('device');
+        
+        if (!deviceType && isMobile()) {
+            // 立即重定向到移动端页面
+            window.location.replace('mobile.html');
+        }
     </script>
 </head>
 <body>

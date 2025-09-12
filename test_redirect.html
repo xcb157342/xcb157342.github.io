@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重定向测试</title>
+</head>
+<body>
+    <h1>重定向测试页面</h1>
+    <p>此页面将测试移动设备重定向功能。</p>
+    <button onclick="testMobileRedirect()">模拟移动设备访问主页</button>
+    <button onclick="testDesktopView()">强制桌面版视图</button>
+    
+    <script>
+        function testMobileRedirect() {
+            // 创建一个模拟移动设备的用户代理字符串
+            const mobileUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1";
+            
+            // 创建一个新窗口并设置用户代理（注意：现代浏览器出于安全原因可能不支持此操作）
+            // 这里我们只能模拟跳转
+            alert("在实际移动设备上，您会被重定向到 mobile.html。这里只是模拟操作。");
+            window.location.href = "./?device=mobile"; // 添加参数避免重定向
+        }
+        
+        function testDesktopView() {
+            // 强制桌面版视图
+            window.location.href = "./?device=desktop";
+        }
+    </script>
+</body>
+</html>
