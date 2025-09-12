@@ -217,12 +217,41 @@ function setupContextMenu() {
 // 显示悬浮菜单
 function showContextMenu(e, url) {
     e.preventDefault();
+    e.stopPropagation();
+    
     currentWebsiteUrl = url;
     
-    const contextMenu = document.getElementById('context-menu');
-    contextMenu.style.left = e.pageX + 'px';
-    contextMenu.style.top = e.pageY + 'px';
-    contextMenu.classList.add('visible');
+    const menu = document.getElementById('context-menu');
+    
+    // 获取菜单的宽度和高度
+    menu.style.visibility = 'hidden';
+    menu.classList.add('visible');
+    const menuWidth = menu.offsetWidth;
+    const menuHeight = menu.offsetHeight;
+    menu.classList.remove('visible');
+    menu.style.visibility = 'visible';
+    
+    // 获取视窗尺寸
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // 计算菜单位置
+    let left = e.pageX;
+    let top = e.pageY;
+    
+    // 判断右侧空间是否足够，不够则向左展开
+    if (left + menuWidth > viewportWidth) {
+        left = Math.max(10, left - menuWidth);
+    }
+    
+    // 判断底部空间是否足够，不够则向上展开
+    if (top + menuHeight > viewportHeight) {
+        top = Math.max(10, top - menuHeight);
+    }
+    
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.classList.add('visible');
 }
 
 // 隐藏悬浮菜单
