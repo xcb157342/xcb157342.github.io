@@ -13,7 +13,7 @@ body {
 }
 
 header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #fafafc35 ;
     color: white;
     padding: 1rem;
     text-align: center;
@@ -23,7 +23,7 @@ header {
     z-index: 100;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    background-color: rgba(102, 126, 234, 0.8);
+    background-color: rgba(232, 233, 240, 0.1);
 }
 
 header h1 {
@@ -47,9 +47,9 @@ header h1 {
 
 #searchButton {
     padding: 12px 20px;
-    background-color: #ff6b6b;
+    background-color: #807ef7;
     color: white;
-    border: none;
+    border: 2px solid #fff;
     border-radius: 25px;
     cursor: pointer;
     font-size: 1rem;
@@ -58,7 +58,9 @@ header h1 {
 
 #searchButton:active {
     transform: scale(0.98);
-    background-color: #ff5252;
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
 }
 
 main {
