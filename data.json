@@ -1,0 +1,94 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "学习资源",
+      "websites": [
+        {
+          "id": 101,
+          "name": "MDN Web Docs",
+          "url": "https://developer.mozilla.org/zh-CN/",
+          "description": "Web开发权威文档，包含HTML、CSS、JavaScript等技术资料"
+        },
+        {
+          "id": 102,
+          "name": "W3Schools",
+          "url": "https://www.w3schools.com/",
+          "description": "Web开发教程网站，提供在线代码练习环境"
+        },
+        {
+          "id": 103,
+          "name": "菜鸟教程",
+          "url": "https://www.runoob.com/",
+          "description": "提供各种编程语言基础教程"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "开发工具",
+      "websites": [
+        {
+          "id": 201,
+          "name": "GitHub",
+          "url": "https://github.com/",
+          "description": "全球最大的代码托管平台"
+        },
+        {
+          "id": 202,
+          "name": "Stack Overflow",
+          "url": "https://stackoverflow.com/",
+          "description": "程序员问答社区"
+        },
+        {
+          "id": 203,
+          "name": "CodePen",
+          "url": "https://codepen.io/",
+          "description": "在线代码编辑器和前端开发社区"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "设计资源",
+      "websites": [
+        {
+          "id": 301,
+          "name": "Unsplash",
+          "url": "https://unsplash.com/",
+          "description": "高质量免费图片资源"
+        },
+        {
+          "id": 302,
+          "name": "IconFont",
+          "url": "https://www.iconfont.cn/",
+          "description": "阿里巴巴矢量图标库"
+        },
+        {
+          "id": 303,
+          "name": "Coolors",
+          "url": "https://coolors.co/",
+          "description": "在线配色方案生成器"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "实用工具",
+      "websites": [
+        {
+          "id": 401,
+          "name": "在线PDF转换",
+          "url": "https://smallpdf.com/",
+          "description": "各种PDF格式转换工具"
+        },
+        {
+          "id": 402,
+          "name": "TinyPNG",
+          "url": "https://tinypng.com/",
+          "description": "在线图片压缩工具"
+        }
+      ]
+    }
+  ]
+}

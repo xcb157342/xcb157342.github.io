@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站收藏夹 - 移动版</title>
+    <link rel="stylesheet" href="mobile.css">
+    <!-- 添加字体图标支持 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="搜索网站...">
+            <button id="searchButton">搜索</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="categories-container">
+            <!-- 分类将通过JavaScript动态加载 -->
+        </div>
+    </main>
+
+    <!-- 悬浮菜单 -->
+    <div id="context-menu" class="context-menu">
+        <ul>
+            <li id="visit-website">
+                <i class="fas fa-external-link-alt"></i>
+                <span>访问网站</span>
+            </li>
+            <li id="copy-url">
+                <i class="fas fa-copy"></i>
+                <span>复制网址</span>
+            </li>
+            <li id="open-in-browser">
+                <i class="fas fa-globe"></i>
+                <span>在浏览器中打开</span>
+            </li>
+        </ul>
+    </div>
+
+    <script src="mobile.js"></script>
+</body>
+</html>

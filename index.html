@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站收藏夹</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // 设备识别和重定向逻辑
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        
+        // 页面加载时检查设备类型
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查URL参数，如果指定了设备类型则不重定向
+            const urlParams = new URLSearchParams(window.location.search);
+            const deviceType = urlParams.get('device');
+            
+            if (!deviceType) {
+                if (isMobile()) {
+                    // 重定向到移动端页面
+                    window.location.href = 'mobile.html';
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="搜索网站...">
+            <button id="searchButton">搜索</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="categories-container">
+            <!-- 分类将通过JavaScript动态加载 -->
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
