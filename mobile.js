@@ -469,3 +469,28 @@ function openInBrowser(url) {
         alert('请在浏览器中打开此链接: ' + url);
     }
 }
+
+
+// 测试函数 - 用于测试toast功能
+function testToast() {
+    showToast('这是一条信息提示', 'info');
+    setTimeout(() => {
+        showToast('这是一条成功提示', 'success');
+    }, 1000);
+    setTimeout(() => {
+        showToast('这是一条警告提示', 'warning');
+    }, 2000);
+    setTimeout(() => {
+        showToast('这是一条错误提示', 'error');
+    }, 3000);
+}
+
+// 模态框功能测试函数
+function testModal() {
+    // 可以通过在浏览器控制台中调用openModal('favorites')来测试模态框
+    console.log('可以在控制台中调用以下函数测试模态框:');
+    console.log('openModal("favorites") - 打开收藏夹模态框');
+    console.log('openModal("history") - 打开历史记录模态框');
+    console.log('openModal("settings") - 打开设置模态框');
+    console.log('openModal("about") - 打开关于模态框');
+}
