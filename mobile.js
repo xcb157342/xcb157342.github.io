@@ -67,6 +67,9 @@ function renderCategories() {
     
     // 添加手风琴事件监听
     setupAccordionListeners();
+    
+    // 为网站卡片添加点击事件
+    setupWebsiteClickEvents();
 }
 
 // 设置手风琴效果
@@ -195,6 +198,33 @@ function setupWebsiteClickEvents() {
             showContextMenu(e, url);
         });
     });
+    
+    // 也为搜索结果中的网站卡片添加右键菜单事件
+    const searchResults = document.querySelectorAll('.search-result-section .website-item-mobile');
+    searchResults.forEach(item => {
+        item.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('data-url');
+            showContextMenu(e, url);
+        });
+        
+        // 添加长按触发悬浮菜单的功能（移动端）
+        let touchTimer;
+        item.addEventListener('touchstart', function(e) {
+            const url = this.getAttribute('data-url');
+            touchTimer = setTimeout(() => {
+                showContextMenu(e, url);
+            }, 500); // 长按500ms触发
+        });
+        
+        item.addEventListener('touchend', function() {
+            clearTimeout(touchTimer);
+        });
+        
+        item.addEventListener('touchmove', function() {
+            clearTimeout(touchTimer);
+        });
+    });
 }
 
 // 设置悬浮菜单
@@ -231,6 +261,13 @@ function setupContextMenu() {
             window.open(currentWebsiteUrl, '_blank');
         }
         contextMenu.classList.remove('visible');
+    });
+    
+    // 点击页面其他地方隐藏悬浮菜单
+    document.addEventListener('click', function(e) {
+        if (contextMenu && !contextMenu.contains(e.target)) {
+            contextMenu.classList.remove('visible');
+        }
     });
 }
 
@@ -493,4 +530,12 @@ function testModal() {
     console.log('openModal("history") - 打开历史记录模态框');
     console.log('openModal("settings") - 打开设置模态框');
     console.log('openModal("about") - 打开关于模态框');
+}
+
+// 测试悬浮菜单功能
+function testContextMenu() {
+    console.log('测试悬浮菜单功能:');
+    console.log('1. 点击任意网站卡片应该显示悬浮菜单');
+    console.log('2. 可以在控制台中调用showContextMenu(event, "https://example.com")来测试');
+    console.log('3. 移动端长按网站卡片应该显示悬浮菜单');
 }

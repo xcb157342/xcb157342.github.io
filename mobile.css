@@ -518,13 +518,15 @@ main {
 
 .modal {
     display: none;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     max-width: 90%;
     max-height: 90%;
     width: 500px;
+    
 }
 
 .modal.active {
@@ -538,8 +540,9 @@ main {
 }
 
 .modal-header {
-    padding: 20px;
-    background-color: #f8f9fa;
+    padding: 10px;
+    background-color: #f8f9fa3a;
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid #e9ecef;
     display: flex;
     justify-content: space-between;
