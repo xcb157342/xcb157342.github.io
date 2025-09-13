@@ -87,7 +87,7 @@ header h1 {
     position: fixed;
     top: 0;
     left: -250px;
-    width: 250px;
+    width: 180px;
     height: 100%;
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
@@ -115,16 +115,7 @@ header h1 {
     margin: 0;
 }
 
-.sidebar-menu .close-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #666;
-}
+
 
 .sidebar-menu .menu-items {
     list-style: none;

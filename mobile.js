@@ -90,7 +90,6 @@ function setupEventListeners() {
     const menuButton = document.getElementById('menuButton');
     const sidebarMenu = document.getElementById('sidebarMenu');
     const menuOverlay = document.getElementById('menuOverlay');
-    const closeBtn = document.querySelector('.close-btn');
     
     // 搜索按钮点击事件
     searchButton.addEventListener('click', performSearch);
@@ -115,9 +114,6 @@ function setupEventListeners() {
         menuOverlay.classList.remove('open');
         document.body.style.overflow = ''; // 恢复背景滚动
     }
-    
-    // 点击关闭按钮关闭菜单
-    closeBtn.addEventListener('click', closeMenu);
     
     // 点击遮罩层关闭菜单
     menuOverlay.addEventListener('click', closeMenu);
