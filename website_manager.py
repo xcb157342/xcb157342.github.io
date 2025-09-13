@@ -4,9 +4,10 @@ import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QLabel, QLineEdit, QTextEdit, QPushButton, QListWidget, 
                              QListWidgetItem, QMessageBox, QTabWidget, QFormLayout, 
-                             QGroupBox, QComboBox, QFileDialog)
+                             QGroupBox, QComboBox, QFileDialog, QDialog, QInputDialog)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
+from github import Github
 
 class WebsiteManager(QMainWindow):
     def __init__(self):
@@ -121,6 +122,11 @@ class WebsiteManager(QMainWindow):
         delete_website_btn = QPushButton("删除选中网站")
         delete_website_btn.clicked.connect(self.delete_website)
         button_layout.addWidget(delete_website_btn)
+        
+        # 上传到GitHub按钮
+        upload_github_btn = QPushButton("上传到GitHub")
+        upload_github_btn.clicked.connect(self.upload_to_github)
+        button_layout.addWidget(upload_github_btn)
         
         list_layout.addLayout(button_layout)
         
@@ -451,6 +457,59 @@ class WebsiteManager(QMainWindow):
                 item = QListWidgetItem(item_text)
                 item.setData(Qt.UserRole, website["id"])
                 self.website_list.addItem(item)
+                
+    def upload_to_github(self):
+        # 获取GitHub访问令牌
+        token, ok = QInputDialog.getText(self, "GitHub访问令牌", "请输入您的GitHub个人访问令牌:")
+        if not ok or not token:
+            return
+            
+        try:
+            # 连接到GitHub
+            g = Github(token)
+            user = g.get_user()
+            
+            # 获取仓库信息
+            repo_name, ok = QInputDialog.getText(self, "仓库信息", "请输入仓库名称 (格式: username/repo_name):")
+            if not ok or not repo_name:
+                return
+                
+            # 获取仓库
+            repo = g.get_repo(repo_name)
+            
+            # 读取data.json文件内容
+            with open(self.data_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # 获取文件SHA值（如果文件已存在）
+            sha = None
+            try:
+                contents = repo.get_contents(self.data_file)
+                sha = contents.sha
+            except:
+                pass  # 文件不存在
+            
+            # 上传文件
+            if sha:
+                # 更新现有文件
+                repo.update_file(
+                    path=self.data_file,
+                    message="Update website data",
+                    content=content,
+                    sha=sha
+                )
+            else:
+                # 创建新文件
+                repo.create_file(
+                    path=self.data_file,
+                    message="Add website data",
+                    content=content
+                )
+            
+            QMessageBox.information(self, "成功", "数据已成功上传到GitHub仓库")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"上传失败: {str(e)}")
 
 def main():
     app = QApplication(sys.argv)

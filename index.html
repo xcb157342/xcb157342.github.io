@@ -25,11 +25,10 @@
             <h2>菜单</h2>
         </div>
         <ul class="menu-items">
-            <li><a href="#"><i class="fas fa-home"></i> 首页</a></li>
-            <li class="menu-item" data-modal="favorites"><a href="#"><i class="fas fa-star"></i> 收藏夹</a></li>
-            <li class="menu-item" data-modal="history"><a href="#"><i class="fas fa-history"></i> 历史记录</a></li>
-            <li class="menu-item" data-modal="settings"><a href="#"><i class="fas fa-cog"></i> 设置</a></li>
-            <li class="menu-item" data-modal="about"><a href="#"><i class="fas fa-info-circle"></i> 关于</a></li>
+            <li class="menu-item" data-modal="favorites"><a href="javascript:void(0);"><i class="fas fa-star"></i> 收藏夹</a></li>
+            <li class="menu-item" data-modal="history"><a href="javascript:void(0);"><i class="fas fa-history"></i> 历史记录</a></li>
+            <li class="menu-item" data-modal="settings"><a href="javascript:void(0);"><i class="fas fa-cog"></i> 设置</a></li>
+            <li class="menu-item" data-modal="about"><a href="javascript:void(0);"><i class="fas fa-info-circle"></i> 关于</a></li>
         </ul>
     </div>
 
@@ -37,6 +36,13 @@
     <div id="menuOverlay" class="menu-overlay"></div>
 
     <main>
+        <!-- 我的常去区域 (dock栏) -->
+        <div id="favorites-section" class="favorites-section">
+            <div id="favorites-container" class="favorites-container">
+                <!-- 常去网站将通过JavaScript动态加载 -->
+            </div>
+        </div>
+        
         <div id="categories-container">
             <!-- 分类将通过JavaScript动态加载 -->
         </div>
@@ -53,9 +59,9 @@
                 <i class="fas fa-copy"></i>
                 <span>复制网址</span>
             </li>
-            <li id="open-in-browser">
-                <i class="fas fa-globe"></i>
-                <span>在浏览器中打开</span>
+            <li id="favorite-website">
+                <i class="fas fa-star"></i>
+                <span>收藏网站</span>
             </li>
         </ul>
     </div>
@@ -70,7 +76,7 @@
                     <span class="modal-close">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <p>这里是收藏夹内容</p>
+                    <!-- 收藏夹内容将通过JavaScript动态加载 -->
                 </div>
             </div>
         </div>
@@ -83,7 +89,7 @@
                     <span class="modal-close">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <p>这里是历史记录内容</p>
+                    <!-- 历史记录内容将通过JavaScript动态加载 -->
                 </div>
             </div>
         </div>
@@ -96,7 +102,21 @@
                     <span class="modal-close">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <p>这里是设置内容</p>
+                    <div class="settings-section">
+                        <h3>缓存管理</h3>
+                        <div class="setting-item">
+                            <button id="clear-cache-btn" class="setting-btn">
+                                <i class="fas fa-broom"></i>
+                                清除本地缓存
+                            </button>
+                        </div>
+                        <div class="setting-item">
+                            <button id="clear-data-btn" class="setting-btn warning">
+                                <i class="fas fa-trash-alt"></i>
+                                清除所有数据
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

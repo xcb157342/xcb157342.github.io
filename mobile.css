@@ -3,6 +3,10 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 body {
@@ -40,7 +44,7 @@ header h1 {
 .menu-button {
     background-color: #807ef7;
     color: white;
-    border: none;
+    border: 2px solid #fff;
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -177,6 +181,76 @@ main {
     padding: 1rem;
 }
 
+/* 我的常去区域样式 (dock栏) */
+.favorites-section {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    width: fit-content;
+    max-width: 90%;
+}
+
+.favorites-container {
+    display: flex;
+    gap: 15px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+}
+
+.dock-item:active {
+    transform: scale(0.9);
+}
+
+.dock-item .website-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-size: 20px;
+    color: #4a69bd;
+    object-fit: cover;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.dock-item .website-icon img {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.dock-item .website-name {
+    font-size: 0.7rem;
+    text-align: center;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    padding: 0 2px;
+}
+
 /* 手风琴样式 - 移动端优化 */
 .accordion {
     background-color: #fff;
@@ -202,12 +276,14 @@ main {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+    will-change: background-color;
 }
 
 .accordion-header::after {
     content: '▶';
     font-size: 1rem;
-    transition: transform 0.3s;
+    transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+    will-change: transform;
 }
 
 .accordion-header.active::after {
@@ -235,12 +311,16 @@ main {
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
-    animation: fadeIn 0.3s ease-out;
+    opacity: 0;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+.website-item-mobile.card-enter {
+    animation: cardEnter 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
 }
 
 .website-item-mobile:active {
@@ -257,16 +337,34 @@ main {
     }
 }
 
+@keyframes cardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .accordion-content {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    transition: max-height 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease-out;
     background-color: #f8f9fa;
+    opacity: 0;
+    will-change: max-height, opacity;
 }
 
 .accordion-content.active {
     max-height: 1000px;
-    transition: max-height 0.5s ease-in;
+    transition: max-height 0.5s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease-in;
+    opacity: 1;
+}
+
+.accordion-content .website-item-mobile {
+    opacity: 0;
 }
 
 /* 网站卡片样式 - 移动端优化 */
@@ -518,15 +616,15 @@ main {
 
 .modal {
     display: none;
-    background-color: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(15px);
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     max-width: 90%;
-    max-height: 90%;
+    max-height: 60vh;
     width: 500px;
-    
+    height: 60vh;
 }
 
 .modal.active {
@@ -545,7 +643,7 @@ main {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #e9ecef;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 
@@ -570,6 +668,7 @@ main {
     justify-content: center;
     border-radius: 50%;
     transition: background-color 0.3s;
+    display: none; /* 隐藏关闭按钮 */
 }
 
 .modal-close:hover {
@@ -581,6 +680,44 @@ main {
     padding: 20px;
     overflow-y: auto;
     flex: 1;
+}
+
+/* 美化滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(74, 105, 189, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 105, 189, 0.5);
+}
+
+/* 为模态框保持特定的滚动条样式 */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(74, 105, 189, 0.3);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 105, 189, 0.5);
 }
 
 /* Toast提示样式 */
@@ -605,20 +742,24 @@ main {
 }
 
 .toast.success {
-    background-color: #28a745;
+    background-color: #28a746bd;
+    backdrop-filter: blur(10px);
 }
 
 .toast.error {
-    background-color: #dc3545;
+    background-color: #dc3546bd;
+    backdrop-filter: blur(10px);
 }
 
 .toast.warning {
-    background-color: #ffc107;
+    background-color: #ffc107bd;
+    backdrop-filter: blur(10px);
     color: #333;
 }
 
 .toast.info {
-    background-color: #17a2b8;
+    background-color: #17a2b8bd;
+    backdrop-filter: blur(10px);
 }
 
 .toast .toast-icon {
@@ -671,4 +812,157 @@ main {
         transform: translateX(100%);
         opacity: 0;
     }
+}
+
+/* 收藏夹模态框样式 */
+#favorites-modal .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* 设置模态框样式 */
+.settings-section {
+    margin-bottom: 20px;
+}
+
+.settings-section h3 {
+    color: #4a69bd;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.setting-item {
+    margin-bottom: 20px;
+}
+
+.setting-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+}
+
+.setting-btn i {
+    width: 20px;
+    text-align: center;
+}
+
+.setting-btn:hover {
+    background: #f5f5f5;
+    border-color: #4a69bd;
+}
+
+.setting-btn.warning {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.setting-btn.warning:hover {
+    background: #fff5f5;
+    border-color: #dc3545;
+}
+
+.setting-description {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+.favorite-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-radius: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.favorite-item:hover {
+    background-color: #f5f5f5;
+}
+
+.favorite-item-content {
+    flex: 1;
+}
+
+.favorite-item-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.favorite-item-content p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.unfavorite-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    transition: color 0.3s;
+}
+
+.unfavorite-btn:hover {
+    color: #ff4444;
+}
+
+/* 历史记录项样式 */
+.history-item {
+    display: flex;
+    padding: 15px;
+    border-radius:10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.history-item:hover {
+    background-color: #f5f5f5;
+}
+
+.history-item-content {
+    flex: 1;
+}
+
+.history-item-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: #333;
+    display: inline-block;
+}
+
+.history-item-content p {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.visit-time {
+    font-size: 12px;
+    color: #585858;
+    float: right;
+    margin-top: 2px;
+}
+
+.favorites-list {
+    margin: 0;
+    padding: 0;
 }
