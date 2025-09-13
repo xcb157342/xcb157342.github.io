@@ -87,6 +87,10 @@ function setupAccordionListeners() {
 function setupEventListeners() {
     const searchInput = document.getElementById('searchInput');
     const searchButton = document.getElementById('searchButton');
+    const menuButton = document.getElementById('menuButton');
+    const sidebarMenu = document.getElementById('sidebarMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const closeBtn = document.querySelector('.close-btn');
     
     // 搜索按钮点击事件
     searchButton.addEventListener('click', performSearch);
@@ -97,6 +101,26 @@ function setupEventListeners() {
             performSearch();
         }
     });
+    
+    // 菜单按钮点击事件
+    menuButton.addEventListener('click', function() {
+        sidebarMenu.classList.add('open');
+        menuOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+    });
+    
+    // 关闭菜单事件
+    function closeMenu() {
+        sidebarMenu.classList.remove('open');
+        menuOverlay.classList.remove('open');
+        document.body.style.overflow = ''; // 恢复背景滚动
+    }
+    
+    // 点击关闭按钮关闭菜单
+    closeBtn.addEventListener('click', closeMenu);
+    
+    // 点击遮罩层关闭菜单
+    menuOverlay.addEventListener('click', closeMenu);
     
     // 点击页面其他地方隐藏悬浮菜单
     document.addEventListener('click', function(e) {

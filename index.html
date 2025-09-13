@@ -11,10 +11,33 @@
 <body>
     <header>
         <div class="search-container">
+            <button id="menuButton" class="menu-button">
+                <i class="fas fa-bars"></i>
+            </button>
             <input type="text" id="searchInput" placeholder="搜索网站...">
             <button id="searchButton">搜索</button>
         </div>
     </header>
+
+    <!-- 侧边栏菜单 -->
+    <div id="sidebarMenu" class="sidebar-menu">
+        <div class="menu-header">
+            <h2>菜单</h2>
+            <button class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="menu-items">
+            <li><a href="#"><i class="fas fa-home"></i> 首页</a></li>
+            <li><a href="#"><i class="fas fa-star"></i> 收藏夹</a></li>
+            <li><a href="#"><i class="fas fa-history"></i> 历史记录</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> 设置</a></li>
+            <li><a href="#"><i class="fas fa-info-circle"></i> 关于</a></li>
+        </ul>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div id="menuOverlay" class="menu-overlay"></div>
 
     <main>
         <div id="categories-container">
