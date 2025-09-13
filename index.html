@@ -26,10 +26,10 @@
         </div>
         <ul class="menu-items">
             <li><a href="#"><i class="fas fa-home"></i> 首页</a></li>
-            <li><a href="#"><i class="fas fa-star"></i> 收藏夹</a></li>
-            <li><a href="#"><i class="fas fa-history"></i> 历史记录</a></li>
-            <li><a href="#"><i class="fas fa-cog"></i> 设置</a></li>
-            <li><a href="#"><i class="fas fa-info-circle"></i> 关于</a></li>
+            <li class="menu-item" data-modal="favorites"><a href="#"><i class="fas fa-star"></i> 收藏夹</a></li>
+            <li class="menu-item" data-modal="history"><a href="#"><i class="fas fa-history"></i> 历史记录</a></li>
+            <li class="menu-item" data-modal="settings"><a href="#"><i class="fas fa-cog"></i> 设置</a></li>
+            <li class="menu-item" data-modal="about"><a href="#"><i class="fas fa-info-circle"></i> 关于</a></li>
         </ul>
     </div>
 
@@ -59,6 +59,64 @@
             </li>
         </ul>
     </div>
+
+    <!-- 模态框容器 -->
+    <div id="modal-container" class="modal-container">
+        <!-- 收藏夹模态框 -->
+        <div id="favorites-modal" class="modal" data-modal="favorites">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>收藏夹</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>这里是收藏夹内容</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录模态框 -->
+        <div id="history-modal" class="modal" data-modal="history">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>历史记录</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>这里是历史记录内容</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置模态框 -->
+        <div id="settings-modal" class="modal" data-modal="settings">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>设置</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>这里是设置内容</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关于模态框 -->
+        <div id="about-modal" class="modal" data-modal="about">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>关于</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>这里是关于内容</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示容器 -->
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="mobile.js"></script>
 </body>

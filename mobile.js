@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCategories();
         setupEventListeners();
         setupContextMenu(); // 设置悬浮菜单
+        setupModalSystem(); // 设置模态框系统
     });
 });
 
@@ -198,40 +199,172 @@ function setupWebsiteClickEvents() {
 
 // 设置悬浮菜单
 function setupContextMenu() {
-    // 为所有网站卡片添加点击事件
-    document.addEventListener('click', function(e) {
-        // 检查是否点击了网站卡片
-        const websiteItem = e.target.closest('.website-item-mobile');
-        if (websiteItem) {
-            const url = websiteItem.getAttribute('data-url');
-            if (url) {
-                showContextMenu(e, url);
+    const contextMenu = document.getElementById('context-menu');
+    const visitWebsite = document.getElementById('visit-website');
+    const copyUrl = document.getElementById('copy-url');
+    const openInBrowser = document.getElementById('open-in-browser');
+    
+    // 访问网站
+    visitWebsite.addEventListener('click', function() {
+        if (currentWebsiteUrl) {
+            window.open(currentWebsiteUrl, '_blank');
+        }
+        contextMenu.classList.remove('visible');
+    });
+    
+    // 复制网址
+    copyUrl.addEventListener('click', function() {
+        if (currentWebsiteUrl) {
+            navigator.clipboard.writeText(currentWebsiteUrl).then(() => {
+                showToast('网址已复制到剪贴板', 'success');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                showToast('复制失败', 'error');
+            });
+        }
+        contextMenu.classList.remove('visible');
+    });
+    
+    // 在浏览器中打开
+    openInBrowser.addEventListener('click', function() {
+        if (currentWebsiteUrl) {
+            window.open(currentWebsiteUrl, '_blank');
+        }
+        contextMenu.classList.remove('visible');
+    });
+}
+
+// 模态框功能
+function setupModalSystem() {
+    const modalContainer = document.getElementById('modal-container');
+    const modalCloseButtons = document.querySelectorAll('.modal-close');
+    const menuItems = document.querySelectorAll('.menu-item');
+    
+    // 为菜单项添加点击事件
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const modalType = this.getAttribute('data-modal');
+            if (modalType) {
+                openModal(modalType);
+            }
+        });
+    });
+    
+    // 为模态框关闭按钮添加事件
+    modalCloseButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            closeModal(modal);
+        });
+    });
+    
+    // 点击模态框背景关闭模态框
+    modalContainer.addEventListener('click', function(e) {
+        if (e.target === modalContainer) {
+            const activeModal = document.querySelector('.modal.active');
+            if (activeModal) {
+                closeModal(activeModal);
             }
         }
     });
     
-    // 为悬浮菜单项添加点击事件
-    document.getElementById('visit-website').addEventListener('click', function() {
-        if (currentWebsiteUrl) {
-            window.open(currentWebsiteUrl, '_blank');
-            hideContextMenu();
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const activeModal = document.querySelector('.modal.active');
+            if (activeModal) {
+                closeModal(activeModal);
+            }
         }
+    });
+}
+
+// 打开模态框
+function openModal(modalType) {
+    const modalContainer = document.getElementById('modal-container');
+    const modal = document.getElementById(`${modalType}-modal`);
+    
+    if (modal) {
+        modalContainer.style.display = 'flex';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+    }
+}
+
+// 关闭模态框
+function closeModal(modal) {
+    const modalContainer = document.getElementById('modal-container');
+    
+    if (modal) {
+        modal.classList.remove('active');
+        
+        // 检查是否还有其他模态框打开
+        const activeModals = document.querySelectorAll('.modal.active');
+        if (activeModals.length === 0) {
+            modalContainer.style.display = 'none';
+            document.body.style.overflow = ''; // 恢复背景滚动
+        }
+    }
+}
+
+// Toast提示功能
+function showToast(message, type = 'info', duration = 3000) {
+    const toastContainer = document.getElementById('toast-container');
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // 添加图标
+    let iconClass = '';
+    switch (type) {
+        case 'success':
+            iconClass = 'fas fa-check-circle';
+            break;
+        case 'error':
+            iconClass = 'fas fa-exclamation-circle';
+            break;
+        case 'warning':
+            iconClass = 'fas fa-exclamation-triangle';
+            break;
+        case 'info':
+            iconClass = 'fas fa-info-circle';
+            break;
+        default:
+            iconClass = 'fas fa-info-circle';
+    }
+    
+    toast.innerHTML = `
+        <div class="toast-icon">
+            <i class="${iconClass}"></i>
+        </div>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close">&times;</button>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // 添加关闭按钮事件
+    const closeButton = toast.querySelector('.toast-close');
+    closeButton.addEventListener('click', function() {
+        hideToast(toast);
     });
     
-    document.getElementById('copy-url').addEventListener('click', function() {
-        if (currentWebsiteUrl) {
-            copyToClipboard(currentWebsiteUrl);
-            hideContextMenu();
-        }
-    });
-    
-    document.getElementById('open-in-browser').addEventListener('click', function() {
-        if (currentWebsiteUrl) {
-            // 尝试使用不同的方法在浏览器中打开
-            openInBrowser(currentWebsiteUrl);
-            hideContextMenu();
-        }
-    });
+    // 自动隐藏
+    setTimeout(() => {
+        hideToast(toast);
+    }, duration);
+}
+
+// 隐藏Toast
+function hideToast(toast) {
+    if (toast) {
+        toast.style.animation = 'toastSlideOut 0.3s ease-out forwards';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }
 }
 
 // 显示悬浮菜单
