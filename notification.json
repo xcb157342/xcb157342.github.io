@@ -1,0 +1,22 @@
+{
+  "notifications": [
+    {
+      "id": 1,
+      "title": "置顶通知",
+      "content": "这是一个置顶的通知 这是一个置顶的通知 这是一个置顶的通知 这是一个置顶的通知 这是一个置顶的通知",
+      "time": "2025-09-15 21:51",
+      "attachment": "",
+      "link": "https://www.bilibili.com/",
+      "pinned": true
+    },
+    {
+      "id": 2,
+      "title": "普通通知",
+      "content": "这是一个普通的通知",
+      "time": "2025-09-15 22:22",
+      "attachment": "",
+      "link": "https://www.bilibili.com/",
+      "pinned": false
+    }
+  ]
+}

@@ -492,7 +492,168 @@ function openModal(modalType) {
         else if (modalType === 'history') {
             updateHistoryModal();
         }
+        // 如果是通知模态框，更新其内容
+        else if (modalType === 'about') {
+            updateNotificationsModal();
+        }
     }
+}
+
+// 更新通知模态框内容
+// 显示通知详情模态框
+function showNotificationDetail(notification) {
+    const detailModal = document.getElementById('notification-detail-modal');
+    const modalBody = detailModal.querySelector('.modal-body');
+    
+    // 处理时间显示
+    const timeStr = notification.time || '';
+    
+    // 处理内容显示
+    const contentStr = notification.content || '';
+    
+    // 处理链接显示
+    let linkHTML = '';
+    if (notification.link) {
+        linkHTML = `
+            <div class="notification-detail-link">
+                <h4>链接:</h4>
+                <a href="${notification.link}" target="_blank">${notification.link}</a>
+            </div>
+        `;
+    }
+    
+    // 处理附件显示
+    let attachmentHTML = '';
+    if (notification.attachment) {
+        attachmentHTML = `
+            <div class="notification-detail-attachment">
+                <h4>附件:</h4>
+                <p>${notification.attachment}</p>
+            </div>
+        `;
+    }
+    
+    // 构建通知详情HTML
+    const detailHTML = `
+        <div class="notification-detail">
+            <div class="notification-detail-header">
+                <h3>${notification.title || '无标题'}</h3>
+                <div class="notification-detail-time">${timeStr}</div>
+            </div>
+            <div class="notification-detail-content">
+                <p>${contentStr}</p>
+            </div>
+            ${attachmentHTML}
+            ${linkHTML}
+        </div>
+    `;
+    
+    // 更新模态框内容
+    modalBody.innerHTML = detailHTML;
+    
+    // 显示模态框
+    const modalContainer = document.getElementById('modal-container');
+    modalContainer.style.display = 'flex';
+    
+    // 隐藏其他模态框，只显示通知详情模态框
+    const allModals = document.querySelectorAll('.modal');
+    allModals.forEach(modal => {
+        if (modal !== detailModal) {
+            modal.classList.remove('active');
+        }
+    });
+    
+    detailModal.classList.add('active');
+}
+
+function updateNotificationsModal() {
+    const notificationsModal = document.getElementById('about-modal');
+    const modalBody = notificationsModal.querySelector('.modal-body');
+    
+    // 通过fetch获取通知数据
+    fetch('notification.json')
+        .then(response => response.json())
+        .then(data => {
+            const notifications = data.notifications || [];
+            
+            if (notifications.length === 0) {
+                modalBody.innerHTML = '<p>暂无通知</p>';
+                return;
+            }
+            
+            // 按置顶状态排序，置顶的通知显示在前面
+            const pinnedNotifications = notifications.filter(n => n.pinned);
+            const unpinnedNotifications = notifications.filter(n => !n.pinned);
+            const sortedNotifications = [...pinnedNotifications, ...unpinnedNotifications];
+            
+            // 构建通知列表HTML
+            let notificationsHTML = '<div class="notifications-list">';
+            sortedNotifications.forEach(notification => {
+                // 处理时间显示
+                const timeStr = notification.time || '';
+                
+                // 处理内容显示，限制显示两行
+                let contentStr = notification.content || '';
+                let contentHTML = '';
+                
+                // 只显示预览内容，移除展开按钮
+                contentHTML = `<div class="content-preview">${contentStr}</div>`;
+                
+                // 处理链接显示
+                let linkHTML = '';
+                if (notification.link) {
+                    linkHTML = `<div class="notification-link"><a href="javascript:void(0);" class="view-detail-link" data-notification-id="${notification.id}">查看详情</a></div>`;
+                }
+                
+                // 处理附件显示
+                let attachmentHTML = '';
+                if (notification.attachment) {
+                    attachmentHTML = `<div class="notification-attachment">附件: ${notification.attachment}</div>`;
+                }
+                
+                // 置顶标记
+                const pinnedMarker = notification.pinned ? '<span class="pinned-marker">📌</span>' : '';
+                
+                notificationsHTML += `
+                    <div class="notification-item" data-id="${notification.id}">
+                        <div class="notification-header">
+                            <h3>${notification.title || '无标题'} ${pinnedMarker}</h3>
+                        </div>
+                        <div class="notification-content">
+                            ${contentHTML}
+                            ${attachmentHTML}
+                            <div class="notification-footer">
+                                <div class="notification-time">${timeStr}</div>
+                                ${linkHTML}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            notificationsHTML += '</div>';
+            
+            // 更新模态框内容
+            modalBody.innerHTML = notificationsHTML;
+            
+            // 为查看详情链接添加事件处理
+            const viewDetailLinks = modalBody.querySelectorAll('.view-detail-link');
+            viewDetailLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const notificationId = parseInt(this.getAttribute('data-notification-id'));
+                    const notification = sortedNotifications.find(n => n.id === notificationId);
+                    if (notification) {
+                        showNotificationDetail(notification);
+                    }
+                });
+            });
+            
+            // 展开按钮已移除，无需事件处理
+        })
+        .catch(error => {
+            console.error('获取通知数据失败:', error);
+            modalBody.innerHTML = '<p>获取通知数据失败</p>';
+        });
 }
 
 // 关闭模态框
@@ -502,6 +663,15 @@ function closeModal(modal) {
     if (modal) {
         modal.classList.remove('active');
         
+        // 特殊处理：如果关闭的是通知详情模态框，则显示通知模态框
+        if (modal.id === 'notification-detail-modal') {
+            const notificationsModal = document.getElementById('about-modal');
+            if (notificationsModal) {
+                notificationsModal.classList.add('active');
+                return; // 不隐藏modalContainer，因为通知模态框仍然打开
+            }
+        }
+        
         // 检查是否还有其他模态框打开
         const activeModals = document.querySelectorAll('.modal.active');
         if (activeModals.length === 0) {
@@ -510,6 +680,34 @@ function closeModal(modal) {
         }
     }
 }
+
+// 为通知详情模态框添加关闭事件
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationDetailModal = document.getElementById('notification-detail-modal');
+    if (notificationDetailModal) {
+        const closeButtons = notificationDetailModal.querySelectorAll('.modal-close');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                closeModal(notificationDetailModal);
+            });
+        });
+        
+        // 为返回按钮添加点击事件
+        const backButtons = notificationDetailModal.querySelectorAll('.modal-back-button');
+        backButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                closeModal(notificationDetailModal);
+            });
+        });
+        
+        // 点击模态框外部关闭模态框
+        notificationDetailModal.addEventListener('click', function(e) {
+            if (e.target === notificationDetailModal) {
+                closeModal(notificationDetailModal);
+            }
+        });
+    }
+});
 
 // 更新收藏夹模态框内容
 function updateFavoritesModal() {

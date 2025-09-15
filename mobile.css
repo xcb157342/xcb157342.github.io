@@ -625,10 +625,15 @@ main {
     max-height: 60vh;
     width: 500px;
     height: 60vh;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .modal.active {
     display: block;
+    opacity: 1;
+    transform: scale(1);
 }
 
 .modal-content {
@@ -643,7 +648,7 @@ main {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #e9ecef;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -651,6 +656,21 @@ main {
     margin: 0;
     font-size: 1.5rem;
     color: #333;
+    flex: 1;
+    text-align: center;
+}
+
+/* 通知详情模态框头部特殊样式 */
+#notification-detail-modal .modal-header {
+    justify-content: flex-start;
+}
+
+#notification-detail-modal .modal-header h2 {
+    text-align: left;
+    margin-left: 10px;
+}
+#notification-detail-body{
+    color: #000000;
 }
 
 .modal-close {
@@ -680,6 +700,76 @@ main {
     padding: 20px;
     overflow-y: auto;
     flex: 1;
+}
+
+/* 通知详情样式 */
+.notification-detail {
+    padding: 10px;
+}
+
+/* 通知详情模态框样式 */
+#notification-detail-modal {
+    z-index: 2001; /* 设置更高的z-index，确保在其他模态框之上 */
+}
+
+/* 通知详情模态框返回按钮样式 */
+.modal-back-button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #007bff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    margin-right: 10px;
+}
+
+.modal-back-button:hover {
+    background-color: #e9ecef;
+}
+
+.notification-detail-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.notification-detail-header h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.3em;
+}
+
+.notification-detail-time {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.notification-detail-content h4,
+.notification-detail-attachment h4,
+.notification-detail-link h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.notification-detail-content p,
+.notification-detail-attachment p {
+    margin: 0 0 15px 0;
+    color: #000000;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.notification-detail-link a {
+    color: #007bff;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.notification-detail-link a:hover {
+    text-decoration: underline;
 }
 
 /* 美化滚动条样式 */
@@ -718,6 +808,150 @@ main {
 
 .modal-body::-webkit-scrollbar-thumb:hover {
     background: rgba(74, 105, 189, 0.5);
+}
+
+/* 通知模态框样式 */
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notification-item {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 8px;
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pinned-marker {
+    font-size: 0.9rem;
+    color: #ff9800;
+    background: rgba(255, 152, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.notification-content {
+    margin: 10px 0;
+}
+
+.notification-content p {
+    margin: 0 0 10px 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #444;
+}
+
+.notification-content .content-preview {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+    max-height: 1.5em; /* 1行的高度 */
+    margin: 0 0 10px 0;
+    font-size: 0.95rem;
+    color: #444;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* 响应式设计优化 */
+@media (max-width: 480px) {
+    .notification-content .content-preview {
+        font-size: 0.9rem;
+        line-height: 1.4;
+        max-height: 1.4em; /* 1行的高度 */
+    }
+}
+
+@media (max-width: 360px) {
+    .notification-content .content-preview {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        max-height: 1.4em; /* 1行的高度 */
+    }
+}
+
+.notification-content .full-content {
+    display: none;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+.expand-btn {
+    background: none;
+    border: none;
+    color: #4a69bd;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    padding: 0;
+    margin-top: 5px;
+}
+
+.expand-btn:hover {
+    color: #3a599d;
+}
+
+.notification-attachment {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.notification-link a {
+    color: #4a69bd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.notification-link a:hover {
+    text-decoration: underline;
+}
+
+/* 通知卡片底部布局 */
+.notification-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.notification-footer .notification-time {
+    margin: 0;
 }
 
 /* Toast提示样式 */

@@ -25,10 +25,11 @@
             <h2>菜单</h2>
         </div>
         <ul class="menu-items">
+            <li class="menu-item" onclick="window.location.href='netdisk.html'"><a href="javascript:void(0);"><i class="fas fa-folder"></i> 网盘</a></li>
+            <li class="menu-item" data-modal="about"><a href="javascript:void(0);"><i class="fas fa-bell"></i> 通知</a></li>
             <li class="menu-item" data-modal="favorites"><a href="javascript:void(0);"><i class="fas fa-star"></i> 收藏夹</a></li>
             <li class="menu-item" data-modal="history"><a href="javascript:void(0);"><i class="fas fa-history"></i> 历史记录</a></li>
             <li class="menu-item" data-modal="settings"><a href="javascript:void(0);"><i class="fas fa-cog"></i> 设置</a></li>
-            <li class="menu-item" data-modal="about"><a href="javascript:void(0);"><i class="fas fa-info-circle"></i> 关于</a></li>
         </ul>
     </div>
 
@@ -121,15 +122,31 @@
             </div>
         </div>
 
-        <!-- 关于模态框 -->
+        <!-- 通知模态框 -->
         <div id="about-modal" class="modal" data-modal="about">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>关于</h2>
+                    <h2>通知</h2>
                     <span class="modal-close">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <p>这里是关于内容</p>
+                    <!-- 通知内容将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 通知详情模态框 -->
+        <div id="notification-detail-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="modal-back-button">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h2>通知详情</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body" id="notification-detail-body">
+                    <!-- 通知详情内容将通过JavaScript动态加载 -->
                 </div>
             </div>
         </div>

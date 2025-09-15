@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网盘</title>
+    <link rel="stylesheet" href="mobile.css">
+    <!-- 添加字体图标支持 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .netdisk-header {
+            background: #fafafc35 ;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(232, 233, 240, 0.1);
+        }
+        
+        /* 添加字体图标支持 */
+        .menu-button {
+            background-color: #807ef7;
+            color: white;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            flex-shrink: 0;
+        }
+
+        .menu-button:active {
+            background-color: #6a67d0;
+            transform: scale(0.95);
+        }
+        
+        /* 侧边栏菜单样式 */
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 180px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-menu.open {
+            left: 0;
+        }
+
+        .sidebar-menu .menu-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu .menu-header h2 {
+            color: #4a69bd;
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .sidebar-menu .menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu .menu-items li {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .sidebar-menu .menu-items li:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-menu .menu-items li a {
+            text-decoration: none;
+            color: #333;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-menu .menu-items li a i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu .menu-items li:hover {
+            background-color: rgba(74, 105, 189, 0.1);
+        }
+
+        /* 遮罩层 */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .menu-overlay.open {
+            display: block;
+        }
+        
+        .netdisk-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: rgba(232, 233, 240, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        #searchInput {
+            flex: 1;
+            min-width: 0; /* 允许输入框收缩 */
+            padding: 12px 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #searchButton {
+            width: auto;
+            white-space: nowrap;
+            padding: 12px 20px;
+            background-color: #807ef7;
+            color: white;
+            border: 2px solid #fff;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-shrink: 0;
+        }
+        
+        #searchButton:active {
+            transform: scale(0.98);
+            background-color: #ffffff;
+            color: #000000;
+            border-style: solid 2px #000000;
+        }
+        
+        .sort-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .sort-dropdown {
+            padding: 8px 15px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.407);
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: none;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 35px;
+            cursor: pointer;
+        }
+        
+        .file-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .file-card {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .file-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .file-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #807ef7;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            font-size: 16px;
+            word-break: break-all;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .preview-btn {
+            color: #807ef7;
+        }
+        
+        .download-btn {
+            color: #28a745;
+        }
+        
+        .file-details {
+            margin-bottom: 15px;
+        }
+        
+        .file-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="netdisk-header">
+        <div class="search-container">
+            <button id="menuButton" class="menu-button">
+                <i class="fas fa-bars"></i>
+            </button>
+            <input type="text" id="searchInput" placeholder="搜索文件...">
+            <button id="searchButton">搜索</button>
+        </div>
+    </div>
+    
+    <!-- 侧边栏菜单 -->
+    <div id="sidebarMenu" class="sidebar-menu">
+        <div class="menu-header">
+            <h2>菜单</h2>
+        </div>
+        <ul class="menu-items">
+            <li class="menu-item" onclick="window.location.href='index.html'"><a href="javascript:void(0);"><i class="fas fa-home"></i> 主页</a></li>
+        </ul>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div id="menuOverlay" class="menu-overlay"></div>
+    
+    <div class="netdisk-container">
+        <div class="sort-container">
+            <select class="sort-dropdown" id="sortDropdown">
+                <option value="name-asc">按名称升序</option>
+                <option value="name-desc">按名称降序</option>
+                <option value="time-asc">按时间升序</option>
+                <option value="time-desc">按时间降序</option>
+                <option value="size-asc">按大小升序</option>
+                <option value="size-desc">按大小降序</option>
+            </select>
+        </div>
+        
+        <div class="file-cards" id="fileCardsContainer">
+            <!-- 文件卡片将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 文件数据将从file.json加载
+        let files = [];
+        
+        // 页面加载时获取文件数据
+        async function loadFileData() {
+            try {
+                const response = await fetch('file.json');
+                const data = await response.json();
+                files = data.files.map(file => ({
+                    ...file,
+                    time: file.time || "2023-05-15 14:30" // 如果没有时间信息，使用默认值
+                }));
+                renderFileCards();
+            } catch (error) {
+                console.error('加载文件数据失败:', error);
+                // 如果加载失败，使用默认示例数据
+                files = [
+                    { id: 1, name: "文档1.pdf", time: "2023-05-15 14:30", size: "2.4 MB", previewUrl: "#", downloadUrl: "#" },
+                    { id: 2, name: "图片1.jpg", time: "2023-05-16 09:15", size: "1.2 MB", previewUrl: "#", downloadUrl: "#" },
+                    { id: 3, name: "视频1.mp4", time: "2023-05-17 16:45", size: "45.7 MB", previewUrl: "#", downloadUrl: "#" },
+                    { id: 4, name: "表格1.xlsx", time: "2023-05-18 11:20", size: "0.8 MB", previewUrl: "#", downloadUrl: "#" },
+                    { id: 5, name: "演示文稿1.pptx", time: "2023-05-19 13:10", size: "3.1 MB", previewUrl: "#", downloadUrl: "#" }
+                ];
+                renderFileCards();
+            }
+        }
+        
+        // 当前排序状态
+        let sortState = {
+            column: 'name',
+            direction: 'asc'
+        };
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFileData();
+            setupEventListeners();
+        });
+        
+        // 渲染文件卡片
+        function renderFileCards(filteredFiles = null) {
+            const container = document.getElementById('fileCardsContainer');
+            container.innerHTML = '';
+            
+            const filesToRender = filteredFiles || files;
+            
+            // 排序文件
+            const sortedFiles = [...filesToRender].sort((a, b) => {
+                let aVal = a[sortState.column];
+                let bVal = b[sortState.column];
+                
+                // 如果是大小排序，需要特殊处理
+                if (sortState.column === 'size') {
+                    aVal = convertSizeToBytes(aVal);
+                    bVal = convertSizeToBytes(bVal);
+                }
+                
+                if (aVal < bVal) {
+                    return sortState.direction === 'asc' ? -1 : 1;
+                }
+                if (aVal > bVal) {
+                    return sortState.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+            
+            // 添加文件卡片
+            sortedFiles.forEach(file => {
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                
+                // 根据文件扩展名选择图标
+                let iconSrc = 'icons/tupianziliao.png'; // 默认图标
+                const fileName = file.name.toLowerCase();
+                
+                if (fileName.endsWith('.pdf')) {
+                    iconSrc = 'icons/PDF.png';
+                } else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+                    iconSrc = 'icons/WORD.png';
+                } else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
+                    iconSrc = 'icons/ExCEL.png';
+                } else if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
+                    iconSrc = 'icons/PPT.png';
+                } else if (fileName.endsWith('.zip') || fileName.endsWith('.rar') || fileName.endsWith('.7z')) {
+                    iconSrc = 'icons/ZIP.png';
+                } else if (fileName.endsWith('.mp4') || fileName.endsWith('.avi') || fileName.endsWith('.mov') || fileName.endsWith('.mkv')) {
+                    iconSrc = 'icons/shiping.png';
+                }
+                
+                card.innerHTML = `
+                    <div class="file-header">
+                        <div class="file-info">
+                            <img class="file-icon" src="${iconSrc}" alt="${file.name} icon" onerror="this.src='icons/tupianziliao.png'; this.onerror=null;">
+                            <div class="file-name">${file.name}</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="action-btn preview-btn" onclick="previewFile(${file.id})" title="预览">
+                                <svg t="1757821027301" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8528" width="20" height="20">
+                                    <path d="M797.696 64H147.968c-46.592 0-83.968 37.376-83.968 83.968v728.064c0 46.592 37.376 83.968 83.968 83.968h275.456c11.776 0 20.992-9.216 20.992-20.992v-13.824c0-11.776-9.216-20.992-20.992-20.992l-275.456-0.512c-15.36 0-28.16-12.8-28.16-28.16V147.456c0-15.36 12.8-28.16 28.16-28.16l649.728 0.512c15.36 0 28.16 12.8 28.16 28.16v244.224c0 11.776 9.216 20.992 20.992 20.992h13.824c11.776 0 20.992-9.216 20.992-20.992V147.968c0-46.592-37.376-83.968-83.968-83.968z" p-id="8529" fill="#807ef7"></path>
+                                    <path d="M672.768 961.024c-125.44 0-240.128-86.528-285.184-215.04-1.536-3.584-2.56-7.168-2.56-11.264 0-3.584 1.024-7.68 2.56-11.264 45.056-128.512 159.744-215.04 285.184-215.04 125.952 0 237.056 82.944 283.648 210.944l2.048 5.632c0.512 1.024 1.024 2.56 1.024 3.584v1.024c0 0.512 0 1.024 0.512 2.048v6.144c0 0.512 0 1.024-0.512 2.048l-0.512 1.024c0 1.024-0.512 2.56-1.024 3.584l-2.048 5.632c-46.08 128-157.184 210.944-283.136 210.944z m-233.984-226.304c39.424 105.472 131.072 173.568 233.984 173.568 102.4 0 194.048-68.096 233.984-173.568-39.936-105.472-131.072-173.568-233.984-173.568-102.4 0-194.048 68.096-233.984 173.568z" p-id="8530" fill="#807ef7"></path>
+                                    <path d="M672.256 618.496c-64 0-115.712 51.712-115.712 116.224 0 64 51.712 115.712 115.712 115.712 64 0 116.224-51.712 116.224-115.712 0-64-51.712-116.224-116.224-116.224z m0 179.2c-34.816 0-62.976-28.16-62.976-62.976 0-34.816 28.16-63.488 62.976-63.488 34.816 0 63.488 28.16 63.488 63.488 0 34.816-28.16 62.976-63.488 62.976zM375.808 442.88H223.744c-11.776 0-20.992 9.216-20.992 20.992v13.824c0 11.776 9.216 20.992 20.992 20.992h152.064c11.776 0 20.992-9.216 20.992-20.992v-13.824c0-11.776-9.216-20.992-20.992-20.992zM517.632 386.56H223.744c-11.776 0-20.992-9.216-20.992-20.992v-13.824c0-11.776 9.216-20.992 20.992-20.992h293.888c11.776 0 20.992 9.216 20.992 20.992v13.824c0 11.776-9.216 20.992-20.992 20.992zM721.92 219.136H223.744c-11.776 0-20.992 9.216-20.992 20.992v13.824c0 11.776 9.216 20.992 20.992 20.992H721.92c11.776 0 20.992-9.728 20.992-20.992v-13.824c0-11.776-9.216-20.992-20.992-20.992z" p-id="8531" fill="#807ef7"></path>
+                                </svg>
+                            </button>
+                            <button class="action-btn download-btn" onclick="downloadFile(${file.id})" title="下载">
+                                <svg t="1757820937966" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7280" width="20" height="20">
+                                    <path d="M321.6 346.5h381c21.4 0 39-17.5 39-39 0-21.4-17.5-39-39-39h-381c-21.4 0-39 17.5-39 39 0 21.4 17.5 39 39 39zM282.6 488.5c0 21.4 17.5 39 39 39H606c21.4 0 39-17.5 39-39 0-21.4-17.5-39-39-39H321.6c-21.5 0-39 17.5-39 39z" p-id="7281" fill="#28a745"></path>
+                                    <path d="M908.5 113.9c0-27.6-22.4-50-50-50H166.8c-27.6 0-50 22.4-50 50v794.7c0 27.6 22.4 50 50 50h307.3c20.8-0.3 37.5-17.2 37.5-38s-16.7-37.7-37.5-38H192.8V139.9h639.7v400.8c0 21 17 38 38 38s38-17 38-38V113.9z" p-id="7282" fill="#28a745"></path>
+                                    <path d="M805.3 789.6L779 815.9V627.7c0-22.4-18.3-40.7-40.7-40.7-22.4 0-40.7 18.3-40.7 40.7v188.1l-26.3-26.3c-15.8-15.8-41.8-15.8-57.6 0s-15.8 41.8 0 57.6l95.9 95.9c15.8 15.8 41.8 15.8 57.6 0l95.9-95.9c15.9-15.9 15.9-41.8 0-57.6-15.9-15.7-41.9-15.7-57.8 0.1z" p-id="7283" fill="#28a745"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="file-details">
+                        <div class="file-detail">
+                            <span>${file.time}</span>
+                            <span>${file.size}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // 转换文件大小为字节用于排序
+        function convertSizeToBytes(sizeStr) {
+            const units = {'B': 1, 'KB': 1024, 'MB': 1024*1024, 'GB': 1024*1024*1024};
+            const match = sizeStr.match(/^(\d+(?:\.\d+)?)\s*(B|KB|MB|GB)$/i);
+            if (match) {
+                const value = parseFloat(match[1]);
+                const unit = match[2].toUpperCase();
+                return value * (units[unit] || 1);
+            }
+            return sizeStr;
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 搜索按钮点击事件
+            document.getElementById('searchButton').addEventListener('click', function() {
+                performSearch();
+            });
+            
+            // 搜索输入回车事件
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // 排序下拉框事件
+            document.getElementById('sortDropdown').addEventListener('change', function() {
+                const [column, direction] = this.value.split('-');
+                sortState.column = column;
+                sortState.direction = direction;
+                renderFileCards();
+            });
+        }
+        
+        // 执行搜索
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                // 如果搜索词为空，显示所有文件
+                renderFileCards();
+                return;
+            }
+            
+            // 过滤文件
+            const filteredFiles = files.filter(file => 
+                file.name.toLowerCase().includes(searchTerm)
+            );
+            
+            // 渲染过滤后的文件
+            renderFileCards(filteredFiles);
+        }
+        
+        // 预览文件
+        function previewFile(fileId) {
+            const file = files.find(f => f.id === fileId);
+            if (file) {
+                // 直接跳转到预览页面
+                window.open(file.previewUrl, '_blank');
+            }
+        }
+        
+        // 下载文件
+        function downloadFile(fileId) {
+            const file = files.find(f => f.id === fileId);
+            if (file) {
+                // 直接访问下载链接
+                window.open(file.downloadUrl, '_blank');
+            }
+        }
+        
+        // 侧边菜单功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('menuButton');
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            const menuOverlay = document.getElementById('menuOverlay');
+            
+            // 菜单按钮点击事件
+            if (menuButton) {
+                menuButton.addEventListener('click', function() {
+                    sidebarMenu.classList.add('open');
+                    menuOverlay.classList.add('open');
+                    document.body.style.overflow = 'hidden'; // 防止背景滚动
+                });
+            }
+            
+            // 关闭菜单事件
+            function closeMenu() {
+                sidebarMenu.classList.remove('open');
+                menuOverlay.classList.remove('open');
+                document.body.style.overflow = ''; // 恢复背景滚动
+            }
+            
+            // 点击遮罩层关闭菜单
+            if (menuOverlay) {
+                menuOverlay.addEventListener('click', closeMenu);
+            }
+            
+            //  ESC键关闭菜单
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeMenu();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
