@@ -1,0 +1,12 @@
+git status 
+git add . 
+git commit -m "新增 网盘、通知页面及功能实现" 
+git push origin master 
+git remote -v 
+curl -s https://api.github.com/repos/xcb157342/xcb157342.github.io/pages 
+Invoke-WebRequest -Uri "https://api.github.com/repos/xcb157342/xcb157342.github.io/pages" -UseBasicParsing 
+git branch -a 
+git log --oneline -5 
+git ls-tree -r HEAD | grep index.html 
+git ls-tree -r HEAD | Select-String "index.html" 
+Start-Process "https://xcb157342.github.io/" 
