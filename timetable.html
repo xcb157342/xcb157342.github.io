@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课表</title>
+    <link rel="stylesheet" href="mobile.css">
+    <!-- 添加字体图标支持 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .timetable-container {
+            max-width: 1500px;
+            margin: 0;
+            padding: 0 5px;
+        }
+        
+        .timetable-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+        
+        .timetable-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .timetable-header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        /* 控制区域容器 - 使周次切换和课表选择在同一行 */
+        .timetable-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        /* 周次切换区域 - 放在左侧 */
+        .week-selector {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            background: rgba(128, 126, 247, 0.1);
+            padding: 8px 15px;
+            border-radius: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* 周次切换按钮样式 */
+        .week-selector button {
+            background-color: #807ef7;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .week-selector button:hover {
+            background-color: #6a67d0;
+            transform: scale(1.05);
+        }
+        
+        .week-selector button:active {
+            transform: scale(0.95);
+        }
+        
+        /* 当前周数显示样式 */
+        .week-selector #currentWeek {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        /* 课表切换区域 - 放在右侧 */
+        .timetable-switcher {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        
+        #timetableSelector {
+            padding: 8px 12px;
+            border: 2px solid #807ef7;
+            border-radius: 8px;
+            background-color: white;
+            color: #333;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #timetableSelector:hover {
+            background-color: #f0f0ff;
+            box-shadow: 0 2px 8px rgba(128, 126, 247, 0.3);
+        }
+        
+        #timetableSelector:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(128, 126, 247, 0.3);
+        }
+        
+        .timetable {
+            width: 850px; /* 减小宽度使课表更紧凑 */
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            table-layout: fixed;
+        }
+        
+        .timetable th,
+        .timetable td {
+            border: 1px solid #e0e0e0;
+            padding: 8px; /* 减小内边距 */
+            text-align: center;
+            vertical-align: top;
+        }
+        
+        .timetable th {
+            background: #807ef7;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* 调整周四区域位置 */
+        .timetable th:nth-child(5),
+        .timetable td:nth-child(5) {
+            position: relative;
+        }
+        
+        /* 调整课表单元格高度和样式 */
+        .timetable td {
+            height: 60px; /* 减小单元格高度 */
+            width: 12.5%;
+            position: relative;
+            padding: 3px; /* 减小内边距 */
+        }
+        
+        /* 固定每个节次的高度 */
+        .timetable tr {
+            height: 60px; /* 减小行高 */
+        }
+        
+        /* 为节次列设置较小的宽度 */
+        .timetable th:first-child,
+        .timetable td:first-child {
+            width: 8%;
+            height: auto;
+        }
+        
+        /* 特别减少节次行的高度 */
+        .timetable tbody tr td:first-child {
+            height: 30px;
+            line-height: 30px;
+        }
+        
+        /* 调整课程卡片样式 - 确保填充整个单元格 */
+        .course {
+            background: #f0f0ff;
+            border-radius: 4px; /* 稍微减小圆角 */
+            padding: 6px; /* 减小内边距 */
+            margin: 2px 0; /* 适当增加外边距 */
+            font-size: 13px; /* 增大字体 */
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 46px; /* 减小最小高度 */
+            height: 100%; /* 填充父容器 */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        
+        /* 合并课程的特殊样式 */
+        .course.merged {
+            min-height: 100px; /* 调整合并课程的最小高度 */
+            height: 124px; /* 调整合并课程的高度 */
+        }
+        
+        .course:hover {
+            background: #e0e0ff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* 优化课程标题显示 */
+        .course-title-container {
+            flex-shrink: 0;
+            margin-bottom: 6px; /* 增加底部间距 */
+            padding-bottom: 4px; /* 增加底部内边距 */
+            border-bottom: 1px solid rgba(128, 126, 247, 0.2); /* 添加分隔线 */
+        }
+        
+        .course-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px; /* 增大标题字体 */
+            line-height: 1.3; /* 调整行高 */
+            max-height: 2.6em; /* 限制最多显示两行 */
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .course-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* 将内容放置在底部 */
+            margin-top: auto; /* 自动调整顶部间距 */
+        }
+        
+        .course-info {
+            color: #666;
+            font-size: 12px; /* 增大字体 */
+            margin-bottom: 2px; /* 减小底部间距 */
+        }
+        
+        .course-period-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            min-height: 18px; /* 设置最小高度 */
+        }
+        
+        .course-period {
+            color: #888;
+            font-size: 13px; /* 增大字体 */
+            margin-top: 2px; /* 减小顶部间距 */
+        }
+        
+        .course-weeks {
+            color: #888;
+            font-size: 11px; /* 增大字体 */
+            margin-top: 2px; /* 减小顶部间距 */
+        }
+        
+        .no-course {
+            color: #ccc;
+            font-size: 12px; /* 增大字体 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        /* 移除原有的响应式调整，保持固定样式 */
+        @media (max-width: 768px) {
+            .timetable th,
+            .timetable td {
+                padding: 12px;
+                font-size: 14px;
+                height: 80px;
+            }
+            
+            .course {
+                padding: 5px;
+                font-size: 13px;
+                min-height: 42px;
+            }
+            
+            .course-info,
+            .course-period,
+            .course-weeks {
+                font-size: 12px;
+            }
+            
+            .week-selector {
+                flex-direction: row;
+                gap: 15px;
+            }
+            
+            .course-period-container {
+                display: flex;
+                align-items: center;
+                flex-grow: 1;
+                min-height: 16px;
+            }
+            
+            .course-period {
+                font-size: 12px;
+            }
+        }
+        
+        /* 当屏幕宽度小于450px时，保持固定样式 */
+        @media (max-width: 450px) {
+            .timetable th,
+            .timetable td {
+                height: 80px;
+                padding: 12px;
+            }
+            
+            .course {
+                padding: 5px;
+                font-size: 13px;
+                min-height: 42px;
+            }
+            
+            .course-title {
+                font-size: 14px;
+            }
+            
+            .course-info,
+            .course-period,
+            .course-weeks {
+                font-size: 12px;
+            }
+            
+            .course-period-container {
+                display: flex;
+                align-items: center;
+                flex-grow: 1;
+                min-height: 16px;
+            }
+            
+            .course-period {
+                font-size: 12px;
+            }
+            
+            .weekday {
+                font-size: 14px;
+            }
+        }
+        
+        /* 头部区域居中样式 */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .menu-button {
+            position: absolute;
+            left: 0;
+        }
+        
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 滑动开关样式 */
+        .toggle-container {
+            position: absolute;
+            right: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #807ef7;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* 滑动开关标签样式 */
+        .toggle-label {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 8px;
+            color: #333;
+        }
+        
+        .toggle-label.left {
+            color: #807ef7;
+        }
+        
+        .toggle-label.right {
+            color: #333;
+        }
+        
+        /* 当开关切换时，改变标签颜色 */
+        #controlsToggle:checked ~ .toggle-label.left {
+            color: #333;
+        }
+        
+        #controlsToggle:checked ~ .toggle-label.right {
+            color: #807ef7;
+        }
+        
+        /* 当屏幕宽度小于450px时，将星期标题简化为单个字 */
+        @media (max-width: 450px) {
+            .weekday {
+                font-size: 12px;
+            }
+        }
+        
+        /* 实时课程信息容器样式 */
+        .realtime-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
+            border: 1px solid #e9ecef;
+            margin: 20px auto;
+            max-width: 1400px; /* 增加最大宽度 */
+        }
+        
+        .realtime-card {
+            display: flex;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+        
+        .realtime-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .realtime-card-header {
+            flex: 0 0 120px;
+            background-color: #e9ecef;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #495057;
+            border-right: 1px solid #dee2e6;
+        }
+        
+        .realtime-card-content {
+            flex: 1;
+            display: flex;
+        }
+        
+        .realtime-card-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .realtime-card-section:not(:last-child) {
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .realtime-card-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+            color: #495057;
+        }
+        
+        .course-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #212529;
+        }
+        
+        .course-time, .course-classroom {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 3px;
+        }
+        
+        .no-course {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        /* 响应式设计 - 保持横向布局 */
+        @media (max-width: 768px) {
+            .realtime-cards-container {
+                padding: 15px;
+                margin: 15px;
+                border-radius: 8px;
+            }
+            
+            .realtime-card {
+                border-radius: 8px;
+            }
+            
+            .realtime-card-header {
+                flex: 0 0 100px;
+                padding: 15px;
+                font-size: 1.1em;
+            }
+            
+            .realtime-card-section {
+                padding: 15px;
+            }
+            
+            .realtime-card-section h3 {
+                font-size: 1em;
+                margin-bottom: 10px;
+            }
+            
+            .course-title {
+                font-size: 1em;
+            }
+            
+            .course-time, .course-classroom {
+                font-size: 0.85em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .realtime-cards-container {
+                padding: 10px;
+                margin: 10px;
+            }
+            
+            .realtime-card-header {
+                flex: 0 0 80px;
+                padding: 10px;
+                font-size: 1em;
+            }
+            
+            .realtime-card-section {
+                padding: 10px;
+            }
+            
+            .realtime-card-section h3 {
+                font-size: 0.9em;
+                margin-bottom: 8px;
+            }
+            
+            .course-title {
+                font-size: 0.9em;
+            }
+            
+            .course-time, .course-classroom {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="search-container">
+            <button id="homeButton" class="menu-button" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i>
+            </button>
+            <div class="header-info">
+                <h1 id="currentDateTime" style="margin: 0; font-size: 18px; text-align: center; color: black;"></h1>
+                <div id="currentWeekDisplay" style="text-align: center; font-size: 16px; color: black; margin-top: 5px;"></div>
+            </div>
+            <!-- 滑动开关 -->
+            <div class="toggle-container">
+                <span class="toggle-label left">实时</span>
+                <label class="switch">
+                    <input type="checkbox" id="controlsToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label right">总览</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="timetable-container">
+            <div class="timetable-controls">
+                <div class="week-selector">
+                    <button id="prevWeek"><i class="fas fa-arrow-left"></i></button>
+                    <span id="currentWeek">第1周</span>
+                    <button id="nextWeek"><i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="timetable-switcher">
+                    <select id="timetableSelector">
+                        <option value="huxinyue.txt" selected>H</option>
+                        <option value="X.txt">X</option>
+                        <option value="yangxin.txt">Y</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 实时课程信息容器 -->
+            <div id="realtime-container" class="realtime-container">
+                <div class="realtime-cards-container">
+                    <!-- H用户卡片 -->
+                    <div class="realtime-card">
+                        <div class="realtime-card-header">
+                            <h3>H</h3>
+                        </div>
+                        <div class="realtime-card-content">
+                            <div class="realtime-card-section">
+                                <div class="realtime-card-section-title">当前课程</div>
+                                <div id="current-H" class="realtime-card-section-content">加载中...</div>
+                            </div>
+                            <div class="realtime-card-section">
+                                <div class="realtime-card-section-title">下一课程</div>
+                                <div id="next-H" class="realtime-card-section-content">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- X用户卡片 -->
+                    <div class="realtime-card">
+                        <div class="realtime-card-header">
+                            <h3>X</h3>
+                        </div>
+                        <div class="realtime-card-content">
+                            <div class="realtime-card-section">
+                                <div class="realtime-card-section-title">当前课程</div>
+                                <div id="current-X" class="realtime-card-section-content">加载中...</div>
+                            </div>
+                            <div class="realtime-card-section">
+                                <div class="realtime-card-section-title">下一课程</div>
+                                <div id="next-X" class="realtime-card-section-content">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Y用户卡片 -->
+                    <div class="realtime-card">
+                        <div class="realtime-card-header">
+                            <h3>Y</h3>
+                        </div>
+                        <div class="realtime-card-content">
+                            <div class="realtime-card-section">
+                                <div class="realtime-card-section-title">当前课程</div>
+                                <div id="current-Y" class="realtime-card-section-content">加载中...</div>
+                            </div>
+                            <div class="realtime-card-section">
+                                <div class="realtime-card-section-title">下一课程</div>
+                                <div id="next-Y" class="realtime-card-section-content">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timetable-wrapper">
+                <table class="timetable" id="timetable">
+                    <thead>
+                        <tr>
+                            <th>节次</th>
+                            <th class="weekday" data-full="星期一">一</th>
+                            <th class="weekday" data-full="星期二">二</th>
+                            <th class="weekday" data-full="星期三">三</th>
+                            <th class="weekday" data-full="星期四">四</th>
+                            <th class="weekday" data-full="星期五">五</th>
+                            <th class="weekday" data-full="星期六">六</th>
+                            <th class="weekday" data-full="星期日">日</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 课表内容将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- 模态框容器 -->
+    <div id="modal-container" class="modal-container">
+        <!-- 课程详情模态框 -->
+        <div id="course-detail-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>课程详情</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body" id="course-detail-body">
+                    <!-- 课程详情内容将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示容器 -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        // 当前周数
+        let currentWeek = 1;
+        const maxWeek = 16;
+        
+        // 课表数据（按周次存储）
+        let timetableData = {};
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTimetableData();
+            // 自动跳转到当前周次
+            currentWeek = calculateCurrentWeek();
+            setupEventListeners();
+            // 每分钟更新一次
+            setInterval(updateDateTime, 60000);
+        });
+        
+        // 加载课表数据
+        function loadTimetableData(filename = 'huxinyue.txt') {
+            fetch(`./timetable/${filename}`)
+                .then(response => response.text())
+                .then(data => {
+                    parseTimetableData(data);
+                    renderTimetable();
+                    // 数据加载完成后更新实时课程信息
+                    updateDateTime();
+                })
+                .catch(error => {
+                    console.error('加载课表数据失败:', error);
+                    showToast('加载课表数据失败');
+                });
+        }
+        
+        // 解析课表数据
+        function parseTimetableData(textData) {
+            // 初始化课表数据结构（按周次存储）
+            timetableData = {};
+            
+            // 为每一周初始化课表数据结构
+            for (let week = 1; week <= 16; week++) {
+                timetableData[week] = Array(10).fill().map(() => Array(7).fill(null));
+            }
+            
+            // 添加调试信息
+            console.log("原始数据:", textData);
+            
+            // 按星期分割数据，使用开始标签作为分割点
+            // 修改分割逻辑，正确处理数据格式
+            const daySections = textData.split(/\r?\n\r?\n/).filter(section => section.trim() !== '' && section.includes('[星期'));
+            
+            // 添加调试信息
+            console.log("分割后的星期数据:", daySections);
+            console.log("星期数据段落数量:", daySections.length);
+            
+            // 遍历每个星期的数据
+            for (let idx = 0; idx < daySections.length; idx++) {
+                const daySection = daySections[idx];
+                // 获取星期信息
+                const dayLines = daySection.trim().split(/\r?\n/);
+                const dayHeader = dayLines[0];
+                
+                // 添加调试信息
+                console.log(`处理星期数据 ${idx}:`, daySection);
+                console.log(`星期标题:`, dayHeader);
+                
+                // 确定星期几（0-6，星期一到星期日）
+                let day = -1;
+                if (dayHeader.includes('[星期一]')) day = 0;
+                else if (dayHeader.includes('[星期二]')) day = 1;
+                else if (dayHeader.includes('[星期三]')) day = 2;
+                else if (dayHeader.includes('[星期四]')) day = 3;
+                else if (dayHeader.includes('[星期五]')) day = 4;
+                else if (dayHeader.includes('[星期六]')) day = 5;
+                else if (dayHeader.includes('[星期日]')) day = 6;
+                
+                // 添加调试信息
+                console.log(`星期几: ${day}`);
+                
+                // 如果是星期日且内容为"(无课程安排)"，则跳过
+                if (day === 6 && dayLines[1] && dayLines[1].includes('(无课程安排)')) {
+                    console.log("星期日无课程安排，跳过");
+                    continue;
+                }
+                
+                // 将一天的课程信息按!分割成多个课程
+                const courseSections = daySection.split('!');
+                
+                // 添加调试信息
+                console.log("分割后的课程数据:", courseSections);
+                console.log("课程段落数量:", courseSections.length);
+                
+                // 解析每个课程信息
+                for (let i = 0; i < courseSections.length; i++) {
+                    const courseSection = courseSections[i];
+                    const courseLines = courseSection.trim().split(/\r?\n/);
+                    
+                    // 添加调试信息
+                    console.log(`处理课程部分 ${i}:`, courseSection);
+                    console.log(`课程行数:`, courseLines.length);
+                    
+                    // 跳过空的课程部分或只有星期标题的部分
+                    if (courseLines.length <= 1) {
+                        console.log("课程部分为空或只有标题，跳过");
+                        continue;
+                    }
+                    
+                    // 确定课程开始的行号
+                    let startLine = 0;
+                    if (courseLines[0].includes('[星期')) {
+                        startLine = 1;
+                    }
+                    
+                    // 确保有足够的行来解析课程信息
+                    if (startLine + 3 >= courseLines.length) {
+                        console.log("课程信息行数不足，跳过");
+                        console.log("当前行数:", courseLines.length);
+                        console.log("起始行:", startLine);
+                        continue;
+                    }
+                    
+                    // 解析课程信息
+                    const course = {};
+                    
+                    // 解析课程信息
+                    if (courseLines[startLine].startsWith('课程:')) {
+                        course.title = courseLines[startLine].replace('课程:', '').trim();
+                    }
+                    if (startLine + 1 < courseLines.length && courseLines[startLine + 1].startsWith('教室:')) {
+                        course.classroom = courseLines[startLine + 1].replace('教室:', '').trim();
+                    }
+                    if (startLine + 2 < courseLines.length && courseLines[startLine + 2].startsWith('节次:')) {
+                        course.period = courseLines[startLine + 2].replace('节次:', '').trim();
+                    }
+                    if (startLine + 3 < courseLines.length && courseLines[startLine + 3].startsWith('周次:')) {
+                        course.weeks = courseLines[startLine + 3].replace('周次:', '').trim();
+                    }
+                    
+                    // 添加调试信息
+                    console.log("解析出的课程信息:", course);
+                    
+                    // 检查课程信息是否完整
+                    if (!course.title || !course.classroom || !course.period || !course.weeks) {
+                        console.log("课程信息不完整，跳过");
+                        continue;
+                    }
+                    
+                    // 解析周次信息
+                    if (course.weeks) {
+                        const weekMatch = course.weeks.match(/第(\d+)-(\d+)周/);
+                        if (weekMatch) {
+                            const startWeek = parseInt(weekMatch[1]);
+                            const endWeek = parseInt(weekMatch[2]);
+                            
+                            // 添加调试信息
+                            console.log(`课程周次: ${startWeek}-${endWeek}`);
+                            
+                            // 解析节次信息，确定课程在课表中的位置
+                            if (course.period) {
+                                const periodMatch = course.period.match(/(\d+)(?:-(\d+))?/);
+                                if (periodMatch) {
+                                    const startPeriod = parseInt(periodMatch[1]);
+                                    const endPeriod = periodMatch[2] ? parseInt(periodMatch[2]) : startPeriod;
+                                    
+                                    // 添加调试信息
+                                    console.log(`课程节次: ${startPeriod}-${endPeriod}`);
+                                    
+                                    // 检查数据有效性
+                                    if (startWeek >= 1 && endWeek <= 16 && startPeriod >= 1 && endPeriod <= 10 && day >= 0 && day < 7) {
+                                        // 为每个周次存储课程信息
+                                        for (let week = startWeek; week <= endWeek; week++) {
+                                            // 在课表数据中设置课程信息
+                                            for (let period = startPeriod; period <= endPeriod; period++) {
+                                                if (day >= 0 && day < 7 && period >= 1 && period <= 10) {
+                                                    timetableData[week][period - 1][day] = {
+                                                        title: course.title,
+                                                        classroom: course.classroom,
+                                                        period: course.period,
+                                                        weeks: course.weeks
+                                                    };
+                                                    // 添加调试信息
+                                                    console.log(`添加课程: ${course.title}, 星期: ${day+1}, 节次: ${period}, 周次: ${week}`);
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        console.log("数据超出范围，跳过");
+                                        console.log(`周次范围: ${startWeek}-${endWeek}, 节次范围: ${startPeriod}-${endPeriod}, 星期: ${day}`);
+                                    }
+                                } else {
+                                    console.log("节次信息格式不正确:", course.period);
+                                }
+                            }
+                        } else {
+                            console.log("周次信息格式不正确:", course.weeks);
+                        }
+                    }
+                }
+            }
+            
+            // 添加调试信息，查看解析后的数据
+            console.log("解析完成的课表数据:", timetableData);
+            
+            // 检查第一周的数据
+            console.log("第一周课表数据:", timetableData[1]);
+        }
+        
+        // 渲染课表
+        function renderTimetable() {
+            const tbody = document.querySelector('#timetable tbody');
+            tbody.innerHTML = '';
+            
+            // 更新当前周数显示
+            document.getElementById('currentWeek').textContent = `第${currentWeek}周`;
+            
+            // 获取当前周次的课表数据
+            const weekData = timetableData[currentWeek] || Array(10).fill().map(() => Array(7).fill(null));
+            
+            // 添加调试信息
+            console.log(`渲染第${currentWeek}周的课表`);
+            console.log("当前周次课表数据:", weekData);
+            
+            // 用于记录已经处理过的课程单元格，避免重复渲染
+            const processedCells = Array(10).fill().map(() => Array(7).fill(false));
+            
+            // 生成课表行（假设最多10节课）
+            for (let period = 1; period <= 10; period++) {
+                const row = document.createElement('tr');
+                
+                // 添加节次列（始终显示节次编号）
+                const periodCell = document.createElement('td');
+                periodCell.textContent = `${period}`;
+                row.appendChild(periodCell);
+                
+                // 添加每天的课程
+                for (let day = 0; day < 7; day++) {
+                    // 如果当前单元格已经被处理过（作为融合课程的一部分），则跳过
+                    if (processedCells[period - 1][day]) {
+                        continue;
+                    }
+                    
+                    const cell = document.createElement('td');
+                    
+                    // 查找该节次该天的课程
+                    const course = weekData[period - 1][day];
+                    
+                    // 添加调试信息
+                    if (course) {
+                        console.log(`第${period}节, 星期${day+1}:`, course);
+                    }
+                    
+                    if (course) {
+                        // 检查下一节是否有相同的课程（用于融合显示）
+                        let isMerged = false;
+                        
+                        // 检查是否存在下一节，且下一节有课程，且课程信息完全相同
+                        // 只对连续的节次进行融合（如1-2, 3-4），对于跨节次课程（如2-4）只融合连续部分（如3-4）
+                        if (period < 10) {
+                            const nextCourse = weekData[period][day];
+                            if (nextCourse && 
+                                nextCourse.title === course.title && 
+                                nextCourse.classroom === course.classroom &&
+                                nextCourse.weeks === course.weeks) {
+                                // 检查当前课程是否为连续节次（如1-2, 3-4）或者跨节次课程的连续部分（如2-4中的3-4）
+                                const currentPeriodMatch = course.period.match(/(\d+)(?:-(\d+))?/);
+                                if (currentPeriodMatch) {
+                                    const currentStartPeriod = parseInt(currentPeriodMatch[1]);
+                                    const currentEndPeriod = currentPeriodMatch[2] ? parseInt(currentPeriodMatch[2]) : currentStartPeriod;
+                                    
+                                    // 如果是连续节次（如1-2, 3-4）或者当前节次是跨节次课程的连续部分开始（如2-4中的第3节）
+                                    if ((currentEndPeriod - currentStartPeriod === 1) || 
+                                        (currentEndPeriod > currentStartPeriod && period === currentStartPeriod + 1)) {
+                                        // 可以融合显示
+                                        isMerged = true;
+                                        // 标记下一节已处理
+                                        processedCells[period][day] = true;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        const courseDiv = document.createElement('div');
+                        courseDiv.className = 'course';
+                        
+                        if (isMerged) {
+                            // 融合显示两节课程
+                            courseDiv.innerHTML = `
+                                <div class="course-title-container">
+                                    <div class="course-title">${course.title}</div>
+                                </div>
+                                <div class="course-details">
+                                    <div class="course-info">${course.classroom}</div>
+                                    <div class="course-period-container">
+                                        <div class="course-period">${period}-${period+1}</div>
+                                    </div>
+                                    <div class="course-weeks">${course.weeks}</div>
+                                </div>
+                            `;
+                            courseDiv.classList.add('merged'); // 添加merged类
+                            // 设置rowSpan为2，跨两行显示
+                            cell.rowSpan = 2;
+                        } else {
+                            // 正常显示单节课程
+                            courseDiv.innerHTML = `
+                                <div class="course-title-container">
+                                    <div class="course-title">${course.title}</div>
+                                </div>
+                                <div class="course-details">
+                                    <div class="course-info">${course.classroom}</div>
+                                    <div class="course-period-container">
+                                        <div class="course-period">${course.period}</div>
+                                    </div>
+                                    <div class="course-weeks">${course.weeks}</div>
+                                </div>
+                            `;
+                        }
+                        
+                        cell.appendChild(courseDiv);
+                    } else {
+                        cell.innerHTML = '<div class="no-course">无课程</div>';
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                
+                tbody.appendChild(row);
+            }
+        }
+        
+        
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 周数切换按钮
+            document.getElementById('prevWeek').addEventListener('click', function() {
+                if (currentWeek > 1) {
+                    currentWeek--;
+                    renderTimetable();
+                }
+            });
+            
+            document.getElementById('nextWeek').addEventListener('click', function() {
+                if (currentWeek < maxWeek) {
+                    currentWeek++;
+                    renderTimetable();
+                }
+            });
+            
+            // 课表切换下拉菜单
+            document.getElementById('timetableSelector').addEventListener('change', function() {
+                const selectedTimetable = this.value;
+                loadTimetableData(selectedTimetable);
+                // 自动切换到当前周次
+                currentWeek = calculateCurrentWeek();
+                renderTimetable();
+            });
+            
+            // 模态框关闭按钮
+            const closeButtons = document.querySelectorAll('.modal-close');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    modal.classList.remove('active');
+                    document.getElementById('modal-container').style.display = 'none';
+                    document.body.style.overflow = '';
+                });
+            });
+            
+            // 点击模态框外部关闭
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                        document.getElementById('modal-container').style.display = 'none';
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+            // 滑动开关控制.timetable-controls显示与隐藏
+            const controlsToggle = document.getElementById('controlsToggle');
+            const timetableControls = document.querySelector('.timetable-controls');
+            const timetable = document.getElementById('timetable');
+            const leftLabel = document.querySelector('.toggle-label.left');
+            const rightLabel = document.querySelector('.toggle-label.right');
+            
+            // 页面加载时根据开关状态设置.timetable-controls和课表的显示状态
+            timetableControls.style.display = controlsToggle.checked ? 'flex' : 'none';
+            timetable.style.display = controlsToggle.checked ? 'table' : 'none';
+            
+            // 设置标签显示逻辑：打开时显示"总览"，关闭时显示"实时"
+            leftLabel.style.color = controlsToggle.checked ? '#333' : '#807ef7';
+            rightLabel.style.color = controlsToggle.checked ? '#807ef7' : '#333';
+            
+            // 获取实时信息容器
+            const realtimeContainer = document.getElementById('realtime-container');
+            // 根据开关状态决定是否显示实时信息容器
+            realtimeContainer.style.display = controlsToggle.checked ? 'none' : 'block';
+            
+            controlsToggle.addEventListener('change', function() {
+                timetableControls.style.display = this.checked ? 'flex' : 'none';
+                timetable.style.display = this.checked ? 'table' : 'none';
+                // 设置标签显示逻辑：打开时显示"总览"，关闭时显示"实时"
+                leftLabel.style.color = this.checked ? '#333' : '#807ef7';
+                rightLabel.style.color = this.checked ? '#807ef7' : '#333';
+                
+                // 获取实时信息容器
+                const realtimeContainer = document.getElementById('realtime-container');
+                // 根据开关状态决定是否显示实时信息容器
+                realtimeContainer.style.display = this.checked ? 'none' : 'block';
+                
+                // 切换页面时更新实时课程信息
+                updateDateTime();
+            });
+        }
+        
+        // 显示Toast提示
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            
+            toastContainer.appendChild(toast);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // 更新通知模态框内容（从mobile.js复制）
+        function updateNotificationsModal() {
+            const notificationsModal = document.getElementById('about-modal');
+            const modalBody = notificationsModal.querySelector('.modal-body');
+            
+            // 从fetch获取通知数据
+            fetch('notification.json')
+                .then(response => response.json())
+                .then(data => {
+                    const notifications = data.notifications || [];
+                    
+                    if (notifications.length === 0) {
+                        modalBody.innerHTML = '<p>暂无通知</p>';
+                        return;
+                    }
+                    
+                    // 按置顶状态排序，置顶的通知显示在前面
+                    const pinnedNotifications = notifications.filter(n => n.pinned);
+                    const unpinnedNotifications = notifications.filter(n => !n.pinned);
+                    const sortedNotifications = [...pinnedNotifications, ...unpinnedNotifications];
+                    
+                    // 构建通知列表HTML
+                    let notificationsHTML = '<div class="notifications-list">';
+                    sortedNotifications.forEach(notification => {
+                        // 处理时间显示
+                        const timeStr = notification.time || '';
+                        
+                        // 处理内容显示，限制显示两行
+                        let contentStr = notification.content || '';
+                        let contentHTML = '';
+                        
+                        // 只显示预览内容，移除展开按钮
+                        contentHTML = `<div class="content-preview">${contentStr}</div>`;
+                        
+                        // 处理链接显示
+                        let linkHTML = '';
+                        if (notification.link) {
+                            linkHTML = `<div class="notification-link"><a href="javascript:void(0);" class="view-detail-link" data-notification-id="${notification.id}">查看详情</a></div>`;
+                        }
+                        
+                        // 处理附件显示
+                        let attachmentHTML = '';
+                        if (notification.attachment) {
+                            attachmentHTML = `<div class="notification-attachment">附件: ${notification.attachment}</div>`;
+                        }
+                        
+                        // 置顶标记
+                        const pinnedMarker = notification.pinned ? '<span class="pinned-marker">📌</span>' : '';
+                        
+                        notificationsHTML += `
+                            <div class="notification-item" data-id="${notification.id}">
+                                <div class="notification-header">
+                                    <h3>${notification.title || '无标题'} ${pinnedMarker}</h3>
+                                </div>
+                                <div class="notification-content">
+                                    ${contentHTML}
+                                    ${attachmentHTML}
+                                    <div class="notification-footer">
+                                        <div class="notification-time">${timeStr}</div>
+                                        ${linkHTML}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    notificationsHTML += '</div>';
+                    
+                    // 更新模态框内容
+                    modalBody.innerHTML = notificationsHTML;
+                    
+                    // 为查看详情链接添加事件处理
+                    const viewDetailLinks = modalBody.querySelectorAll('.view-detail-link');
+                    viewDetailLinks.forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const notificationId = parseInt(this.getAttribute('data-notification-id'));
+                            const notification = sortedNotifications.find(n => n.id === notificationId);
+                            if (notification) {
+                                showNotificationDetail(notification);
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('获取通知数据失败:', error);
+                    modalBody.innerHTML = '<p>获取通知数据失败</p>';
+                });
+        }
+        
+        // 显示通知详情（从mobile.js复制）
+        function showNotificationDetail(notification) {
+            const detailModal = document.getElementById('notification-detail-modal');
+            const body = document.getElementById('notification-detail-body');
+            
+            // 隐藏所有其他模态框
+            const allModals = document.querySelectorAll('.modal');
+            allModals.forEach(modal => {
+                if (modal !== detailModal) {
+                    modal.classList.remove('active');
+                }
+            });
+            
+            // 构建通知详情HTML
+            const timeStr = notification.time || '';
+            const contentStr = notification.content || '';
+            
+            let linkHTML = '';
+            if (notification.link) {
+                linkHTML = `
+                    <div class="notification-detail-link">
+                        <h4>链接</h4>
+                        <a href="${notification.link}" target="_blank">${notification.link}</a>
+                    </div>
+                `;
+            }
+            
+            let attachmentHTML = '';
+            if (notification.attachment) {
+                attachmentHTML = `
+                    <div class="notification-detail-attachment">
+                        <h4>附件</h4>
+                        <p>${notification.attachment}</p>
+                    </div>
+                `;
+            }
+            
+            body.innerHTML = `
+                <div class="notification-detail">
+                    <div class="notification-detail-header">
+                        <h3>${notification.title || '无标题'}</h3>
+                        <div class="notification-detail-time">${timeStr}</div>
+                    </div>
+                    <div class="notification-detail-content">
+                        <h4>内容</h4>
+                        <p>${contentStr}</p>
+                    </div>
+                    ${attachmentHTML}
+                    ${linkHTML}
+                </div>
+            `;
+            
+            detailModal.classList.add('active');
+            document.getElementById('modal-container').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 更新收藏夹模态框内容（从mobile.js复制）
+        function updateFavoritesModal() {
+            const favoritesModal = document.getElementById('favorites-modal');
+            const modalBody = favoritesModal.querySelector('.modal-body');
+            
+            // 从localStorage获取收藏夹数据
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            
+            if (favorites.length === 0) {
+                modalBody.innerHTML = '<p>暂无收藏网站</p>';
+                return;
+            }
+            
+            // 构建收藏夹列表HTML
+            let favoritesHTML = '<div class="favorites-list">';
+            favorites.forEach((favorite, index) => {
+                favoritesHTML += `
+                    <div class="favorite-item" data-url="${favorite.url}">
+                        <div class="favorite-item-content">
+                            <h3>${favorite.name}</h3>
+                            <p>${favorite.url}</p>
+                        </div>
+                        <button class="unfavorite-btn" data-index="${index}">&times;</button>
+                    </div>
+                `;
+            });
+            favoritesHTML += '</div>';
+            
+            // 更新模态框内容
+            modalBody.innerHTML = favoritesHTML;
+            
+            // 为收藏项添加点击事件（打开网站）
+            const favoriteItems = modalBody.querySelectorAll('.favorite-item');
+            favoriteItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // 如果点击的是取消收藏按钮，则不打开网站
+                    if (e.target.classList.contains('unfavorite-btn')) {
+                        return;
+                    }
+                    
+                    const url = this.getAttribute('data-url');
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                });
+            });
+            
+            // 为取消收藏按钮添加事件
+            const unfavoriteButtons = modalBody.querySelectorAll('.unfavorite-btn');
+            unfavoriteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeFavorite(index);
+                    updateFavoritesModal(); // 重新加载收藏夹
+                });
+            });
+        }
+        
+        // 移除收藏（从mobile.js复制）
+        function removeFavorite(index) {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            favorites.splice(index, 1);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+        
+        // 更新历史记录模态框内容（简化版本）
+        function updateHistoryModal() {
+            const historyModal = document.getElementById('history-modal');
+            const modalBody = historyModal.querySelector('.modal-body');
+            
+            // 从localStorage获取历史记录数据
+            const history = JSON.parse(localStorage.getItem('history') || '[]');
+            
+            if (history.length === 0) {
+                modalBody.innerHTML = '<p>暂无历史记录</p>';
+                return;
+            }
+            
+            // 只显示最近10条记录
+            const recentHistory = history.slice(-10).reverse();
+            
+            // 构建历史记录列表HTML
+            let historyHTML = '<div class="history-list">';
+            recentHistory.forEach((item, index) => {
+                historyHTML += `
+                    <div class="history-item" data-url="${item.url}">
+                        <div class="history-item-content">
+                            <h3>${item.name}</h3>
+                            <p>${item.url}</p>
+                            <div class="history-time">${item.time}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            historyHTML += '</div>';
+            
+            // 更新模态框内容
+            modalBody.innerHTML = historyHTML;
+            
+            // 为历史记录项添加点击事件（打开网站）
+            const historyItems = modalBody.querySelectorAll('.history-item');
+            historyItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                });
+            });
+        }
+        
+        // 计算当前周数
+        function calculateCurrentWeek() {
+            // 第一周的周一日期：2025年9月8日
+            const firstWeekDate = new Date(2025, 8, 8); // 注意：月份从0开始，所以8代表9月
+            
+            // 获取当前日期
+            const currentDate = new Date();
+            
+            // 计算两个日期之间的毫秒差
+            const timeDiff = currentDate.getTime() - firstWeekDate.getTime();
+            
+            // 计算相差的周数（毫秒转天数再除以7）
+            const daysDiff = timeDiff / (1000 * 3600 * 24);
+            const weeksDiff = Math.floor(daysDiff / 7);
+            
+            // 计算当前周数（第一周开始）
+            let currentWeek = 1 + weeksDiff;
+            
+            // 确保周数在合理范围内（1-16周）
+            if (currentWeek < 1) currentWeek = 1;
+            if (currentWeek > 16) currentWeek = 16;
+            
+            return currentWeek;
+        }
+        
+        // 更新当前日期时间显示
+        function updateDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            // 星期几
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekday = weekdays[now.getDay()];
+            
+            // 格式化显示
+            const dateTimeStr = `${year}年${month}月${day}日 ${hours}:${minutes} ${weekday}`;
+            
+            // 更新页面显示
+            const dateTimeElement = document.getElementById('currentDateTime');
+            if (dateTimeElement) {
+                dateTimeElement.textContent = dateTimeStr;
+            }
+            
+            // 计算并更新当前周数显示
+            const currentWeek = calculateCurrentWeek();
+            const currentWeekElement = document.getElementById('currentWeekDisplay');
+            if (currentWeekElement) {
+                currentWeekElement.textContent = `第${currentWeek}周`;
+            }
+            
+            // 更新实时课程信息
+            updateRealtimeCourseInfo(now);
+        }
+        
+        // 节次时间定义
+        const classPeriods = [
+            { name: "第一节课", start: "08:00", end: "08:50" },
+            { name: "第二节课", start: "09:00", end: "09:50" },
+            { name: "第三节课", start: "10:10", end: "11:00" },
+            { name: "第四节课", start: "11:10", end: "12:00" },
+            { name: "第五节课", start: "14:30", end: "15:20" },
+            { name: "第六节课", start: "15:30", end: "16:20" },
+            { name: "第七节课", start: "16:40", end: "17:30" },
+            { name: "第八节课", start: "17:40", end: "18:30" },
+            { name: "第九节课", start: "19:40", end: "20:30" },
+            { name: "第十节课", start: "20:40", end: "21:30" }
+        ];
+        
+        // 获取当前时间段
+        function getCurrentPeriod(now) {
+            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            for (let i = 0; i < classPeriods.length; i++) {
+                const period = classPeriods[i];
+                // 检查当前时间是否在节次时间范围内
+                if (currentTime >= period.start && currentTime <= period.end) {
+                    return i;
+                }
+            }
+            
+            return -1; // 不在任何节次时间内
+        }
+        
+        // 获取当前时间段名称
+        function getCurrentPeriodName(now) {
+            const periodIndex = getCurrentPeriod(now);
+            return periodIndex >= 0 ? classPeriods[periodIndex].name : "非课程时间";
+        }
+        
+        // 获取下一个节次
+        // 获取下一个节次（查找任意时间的下一节课）
+        function getNextPeriod(now, currentWeek, timetableDayIndex) {
+            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            // 首先检查今天剩余的时间
+            for (let i = 0; i < classPeriods.length; i++) {
+                const period = classPeriods[i];
+                // 找到第一个开始时间晚于当前时间的节次
+                if (period.start > currentTime) {
+                    // 检查今天这个节次是否有课
+                    const course = timetableData[currentWeek] && timetableData[currentWeek][i] 
+                        ? timetableData[currentWeek][i][timetableDayIndex] : null;
+                    if (course) {
+                        return { periodIndex: i, dayOffset: 0 };
+                    }
+                }
+            }
+            
+            // 如果今天没有剩余课程，查找未来几天的课程
+            const dayOfWeek = now.getDay();
+            // 从明天开始检查，最多检查7天
+            for (let dayOffset = 1; dayOffset <= 7; dayOffset++) {
+                const futureDate = new Date(now);
+                futureDate.setDate(now.getDate() + dayOffset);
+                
+                // 计算未来日期的星期几和课表索引
+                const futureDayOfWeek = futureDate.getDay();
+                const futureTimetableDayIndex = futureDayOfWeek === 0 ? 6 : futureDayOfWeek - 1;
+                
+                // 计算未来日期的周数
+                const futureWeek = calculateCurrentWeekForDate(futureDate);
+                
+                // 检查这一天的每一节课
+                for (let i = 0; i < classPeriods.length; i++) {
+                    const course = timetableData[futureWeek] && timetableData[futureWeek][i] 
+                        ? timetableData[futureWeek][i][futureTimetableDayIndex] : null;
+                    if (course) {
+                        return { periodIndex: i, dayOffset: dayOffset };
+                    }
+                }
+            }
+            
+            return { periodIndex: -1, dayOffset: 0 }; // 没有找到下一节课
+        }
+        
+        // 计算指定日期的周数
+        function calculateCurrentWeekForDate(date) {
+            // 获取第一周的开始日期（2024年9月9日，星期一）
+            const firstWeekDate = new Date('2024-09-09T00:00:00');
+            
+            // 计算两个日期之间的毫秒差
+            const timeDiff = date.getTime() - firstWeekDate.getTime();
+            
+            // 计算相差的周数（毫秒转天数再除以7）
+            const daysDiff = timeDiff / (1000 * 3600 * 24);
+            const weeksDiff = Math.floor(daysDiff / 7);
+            
+            // 计算周数（第一周开始）
+            let week = 1 + weeksDiff;
+            
+            // 确保周数在合理范围内（1-16周）
+            if (week < 1) week = 1;
+            if (week > 16) week = 16;
+            
+            return week;
+        }
+        
+        // 更新实时课程信息
+        function updateRealtimeCourseInfo(now) {
+            // 获取实时信息容器
+            const realtimeContainer = document.getElementById('realtime-container');
+            
+            // 获取当前星期几 (0-6, 0为星期日)
+            const dayOfWeek = now.getDay();
+            // 转换为课表中的列索引 (0-6, 0为星期一)
+            const timetableDayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            
+            // 获取当前周数
+            const currentWeek = calculateCurrentWeek();
+            
+            // 获取当前节次
+            const currentPeriodIndex = getCurrentPeriod(now);
+            
+            // 获取下一个节次
+            const nextPeriodInfo = getNextPeriod(now, currentWeek, timetableDayIndex);
+            const nextPeriodIndex = nextPeriodInfo.periodIndex;
+            const nextDayOffset = nextPeriodInfo.dayOffset;
+            
+            // 定义学生和对应的课表文件
+            const students = {
+                'H': 'huxinyue.txt',
+                'X': 'X.txt',
+                'Y': 'yangxin.txt'
+            };
+            
+            // 为每个学生更新当前课程信息
+            for (const [student, timetableFile] of Object.entries(students)) {
+                updateCurrentCourseInfo(student, currentWeek, currentPeriodIndex, timetableDayIndex);
+            }
+            
+            // 为每个学生更新下一课程信息
+            for (const [student, timetableFile] of Object.entries(students)) {
+                updateNextCourseInfo(student, currentWeek, nextPeriodIndex, timetableDayIndex, nextDayOffset);
+            }
+            
+            // 根据滑动开关状态决定是否显示实时信息容器
+            const controlsToggle = document.getElementById('controlsToggle');
+            if (!controlsToggle.checked) {
+                realtimeContainer.style.display = 'block';
+            }
+        }
+        
+        // 更新当前课程信息
+        function updateCurrentCourseInfo(student, currentWeek, currentPeriodIndex, timetableDayIndex) {
+            const currentCell = document.getElementById(`current-${student}`);
+            
+            if (currentPeriodIndex >= 0) {
+                // 获取当前节次课程
+                const currentCourse = timetableData[currentWeek] && timetableData[currentWeek][currentPeriodIndex] 
+                    ? timetableData[currentWeek][currentPeriodIndex][timetableDayIndex] : null;
+                
+                if (currentCourse) {
+                    currentCell.innerHTML = `
+                        <div class="course-title">${currentCourse.title || '无课程'}</div>
+                        <div class="course-time">${classPeriods[currentPeriodIndex].start}-${classPeriods[currentPeriodIndex].end}</div>
+                        <div class="course-classroom">${currentCourse.classroom || '无教室信息'}</div>
+                    `;
+                } else {
+                    currentCell.innerHTML = '<div class="no-course">无课程</div>';
+                }
+            } else {
+                currentCell.innerHTML = '<div class="no-course">非课程时间</div>';
+            }
+        }
+        
+        // 更新下一个课程信息
+        function updateNextCourseInfo(student, currentWeek, nextPeriodIndex, timetableDayIndex, nextDayOffset) {
+            const nextCell = document.getElementById(`next-${student}`);
+            
+            // 检查元素是否存在
+            if (!nextCell) {
+                console.error(`Element with ID 'next-${student}' not found`);
+                return;
+            }
+            
+            // 清空之前的内容
+            nextCell.innerHTML = '';
+            
+            // 如果没有下一节课，显示提示信息
+            if (nextPeriodIndex === -1) {
+                nextCell.innerHTML = '<div class="no-course">暂无后续课程</div>';
+                return;
+            }
+            
+            // 计算实际的日期
+            const now = new Date();
+            const nextDate = new Date(now);
+            nextDate.setDate(now.getDate() + nextDayOffset);
+            
+            // 获取星期几的文本
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const dayText = weekdays[nextDate.getDay()];
+            
+            // 格式化日期
+            const month = nextDate.getMonth() + 1;
+            const date = nextDate.getDate();
+            const dateText = `${month}月${date}日`;
+            
+            // 获取课程信息
+            let nextCourse = null;
+            let nextWeek = currentWeek;
+            
+            if (nextDayOffset === 0) {
+                // 今天的课程
+                nextCourse = timetableData[currentWeek] && timetableData[currentWeek][nextPeriodIndex] 
+                    ? timetableData[currentWeek][nextPeriodIndex][timetableDayIndex] : null;
+            } else {
+                // 未来日期的课程
+                nextWeek = calculateCurrentWeekForDate(nextDate);
+                const futureTimetableDayIndex = nextDate.getDay() === 0 ? 6 : nextDate.getDay() - 1;
+                nextCourse = timetableData[nextWeek] && timetableData[nextWeek][nextPeriodIndex] 
+                    ? timetableData[nextWeek][nextPeriodIndex][futureTimetableDayIndex] : null;
+            }
+            
+            if (nextCourse) {
+                // 显示课程信息
+                const periodText = classPeriods[nextPeriodIndex].name;
+                const courseName = nextCourse.title || '无课程';
+                const location = nextCourse.classroom || '无教室信息';
+                
+                // 构造新的时间显示格式：第x周-周y-第z节课
+                const newPeriodText = `第${nextWeek}周-${dayText}-${periodText}`;
+                
+                // 如果是未来日期，显示日期信息
+                if (nextDayOffset === 0) {
+                    nextCell.innerHTML = `
+                        <div class="course-title">${courseName}</div>
+                        <div class="course-time">${newPeriodText}</div>
+                        <div class="course-classroom">${location}</div>
+                    `;
+                } else {
+                    nextCell.innerHTML = `
+                        <div class="course-title">${courseName}</div>
+                        <div class="course-time">${dateText}(${dayText}) ${newPeriodText}</div>
+                        <div class="course-classroom">${location}</div>
+                    `;
+                }
+            } else {
+                nextCell.innerHTML = '<div class="no-course">暂无后续课程</div>';
+            }
+        }
+        
+        
+    </script>
+</body>
+</html>

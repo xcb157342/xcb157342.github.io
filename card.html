@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程显示卡片</title>
+    <style>
+        /* 全局样式，用于美化背景和居中展示 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+
+        /* 最外层的容器，带有圆角和阴影 */
+        .schedule-container {
+            display: flex; /* 使用 Flexbox 布局 */
+            align-items: center; /* 垂直居中对齐子元素 */
+            background-color: white;
+            padding: 20px;
+            border-radius: 20px; /* 较大的圆角 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            gap: 20px; /* 设置子元素之间的间距 */
+        }
+
+        /* 左侧的 "H" 字母样式 */
+        .hour-indicator {
+            font-size: 48px; /* 较大的字号 */
+            font-weight: bold; /* 粗体 */
+            color: #333;
+        }
+
+        /* 包含两个课程卡片的包裹容器 */
+        .courses-wrapper {
+            display: flex; /* 内部也使用 Flexbox，让卡片并排显示 */
+            gap: 15px; /* 两个卡片之间的间距 */
+        }
+
+        /* 单个课程卡片的通用样式 */
+        .course-card {
+            background-color: #4275d6; /* 蓝色背景 */
+            color: white; /* 白色文字 */
+            padding: 20px;
+            border-radius: 15px; /* 卡片的圆角 */
+            width: 180px; /* 设置固定宽度 */
+            height: 120px; /* 设置固定高度 */
+            display: flex;
+            flex-direction: column; /* 使卡片内的内容垂直排列 */
+            align-items: center; /* 水平居中 */
+        }
+        
+        /* 卡片标题样式 */
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="schedule-container">
+        <div class="hour-indicator">H</div>
+        <div class="courses-wrapper">
+            <div class="course-card">
+                <div class="card-title">当前课程</div>
+                </div>
+            <div class="course-card">
+                <div class="card-title">下一课程</div>
+                </div>
+        </div>
+    </div>
+
+</body>
+</html>
