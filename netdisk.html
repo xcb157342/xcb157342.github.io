@@ -43,72 +43,6 @@
             background-color: #6a67d0;
             transform: scale(0.95);
         }
-        
-        /* 侧边栏菜单样式 */
-        .sidebar-menu {
-            position: fixed;
-            top: 0;
-            left: -250px;
-            width: 180px;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            z-index: 1001;
-            transition: left 0.3s ease;
-            overflow-y: auto;
-            padding: 20px 0;
-        }
-
-        .sidebar-menu.open {
-            left: 0;
-        }
-
-        .sidebar-menu .menu-header {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-        }
-
-        .sidebar-menu .menu-header h2 {
-            color: #4a69bd;
-            font-size: 1.3rem;
-            margin: 0;
-        }
-
-        .sidebar-menu .menu-items {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-menu .menu-items li {
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .sidebar-menu .menu-items li:last-child {
-            border-bottom: none;
-        }
-
-        .sidebar-menu .menu-items li a {
-            text-decoration: none;
-            color: #333;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar-menu .menu-items li a i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-menu .menu-items li:hover {
-            background-color: rgba(74, 105, 189, 0.1);
-        }
 
         /* 遮罩层 */
         .menu-overlay {
@@ -284,24 +218,14 @@
 <body>
     <div class="netdisk-header">
         <div class="search-container">
-            <button id="menuButton" class="menu-button">
-                <i class="fas fa-bars"></i>
+            <button id="homeButton" class="menu-button" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i>
             </button>
             <input type="text" id="searchInput" placeholder="搜索文件...">
             <button id="searchButton">搜索</button>
         </div>
     </div>
     
-    <!-- 侧边栏菜单 -->
-    <div id="sidebarMenu" class="sidebar-menu">
-        <div class="menu-header">
-            <h2>菜单</h2>
-        </div>
-        <ul class="menu-items">
-            <li class="menu-item" onclick="window.location.href='index.html'"><a href="javascript:void(0);"><i class="fas fa-home"></i> 主页</a></li>
-        </ul>
-    </div>
-
     <!-- 遮罩层 -->
     <div id="menuOverlay" class="menu-overlay"></div>
     
@@ -520,16 +444,14 @@
         
         // 侧边菜单功能
         document.addEventListener('DOMContentLoaded', function() {
-            const menuButton = document.getElementById('menuButton');
+            const homeButton = document.getElementById('homeButton');
             const sidebarMenu = document.getElementById('sidebarMenu');
             const menuOverlay = document.getElementById('menuOverlay');
             
-            // 菜单按钮点击事件
-            if (menuButton) {
-                menuButton.addEventListener('click', function() {
-                    sidebarMenu.classList.add('open');
-                    menuOverlay.classList.add('open');
-                    document.body.style.overflow = 'hidden'; // 防止背景滚动
+            // 首页按钮点击事件
+            if (homeButton) {
+                homeButton.addEventListener('click', function() {
+                    window.location.href = 'index.html';
                 });
             }
             

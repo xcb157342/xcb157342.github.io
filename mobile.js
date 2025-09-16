@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
         setupContextMenu(); // 设置悬浮菜单
         setupModalSystem(); // 设置模态框系统
         
+        // 检查是否有新通知并弹出通知页面
+        checkAndShowNewNotifications();
+        
         // 添加页面可见性变化监听器
         document.addEventListener('visibilitychange', handleVisibilityChange);
     });
@@ -508,8 +511,21 @@ function showNotificationDetail(notification) {
     // 处理时间显示
     const timeStr = notification.time || '';
     
-    // 处理内容显示
-    const contentStr = notification.content || '';
+    // 处理内容显示，自动识别内容中的链接
+    let contentStr = notification.content || '';
+    // 使用正则表达式识别URL并转换为可点击链接，支持以右括号结尾的URL
+    const urlRegex = /^uuurlhttps?:\/\/[^\s]*\/uuurl$/;
+    contentStr = contentStr.replace(urlRegex, function(match, url) {
+        // 如果URL以右括号结尾，则移除右括号
+        if (match.endsWith(')') && !url.endsWith(')')) {
+            return `<a href="${url}" target="_blank">${url}</a>)`;
+        } else {
+            return `<a href="${url}" target="_blank">${url}</a>`;
+        }
+    });
+    
+    // 将换行符转换为HTML换行标签
+    contentStr = contentStr.replace(/\n/g, '<br>');
     
     // 处理链接显示
     let linkHTML = '';
@@ -517,7 +533,7 @@ function showNotificationDetail(notification) {
         linkHTML = `
             <div class="notification-detail-link">
                 <h4>链接:</h4>
-                <a href="${notification.link}" target="_blank">${notification.link}</a>
+                <a href="${notification.link}" target="_blank">点击访问</a>
             </div>
         `;
     }
@@ -581,6 +597,9 @@ function updateNotificationsModal() {
                 return;
             }
             
+            // 获取已读通知ID列表
+            const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+            
             // 按置顶状态排序，置顶的通知显示在前面
             const pinnedNotifications = notifications.filter(n => n.pinned);
             const unpinnedNotifications = notifications.filter(n => !n.pinned);
@@ -614,8 +633,12 @@ function updateNotificationsModal() {
                 // 置顶标记
                 const pinnedMarker = notification.pinned ? '<span class="pinned-marker">📌</span>' : '';
                 
+                // 检查是否已读
+                const isRead = readNotifications.includes(notification.id);
+                const readClass = isRead ? 'read' : 'unread';
+                
                 notificationsHTML += `
-                    <div class="notification-item" data-id="${notification.id}">
+                    <div class="notification-item ${readClass}" data-id="${notification.id}">
                         <div class="notification-header">
                             <h3>${notification.title || '无标题'} ${pinnedMarker}</h3>
                         </div>
@@ -643,8 +666,29 @@ function updateNotificationsModal() {
                     const notificationId = parseInt(this.getAttribute('data-notification-id'));
                     const notification = sortedNotifications.find(n => n.id === notificationId);
                     if (notification) {
+                        // 标记通知为已读
+                        markNotificationAsRead(notificationId);
+                        // 更新通知项的样式
+                        const notificationItem = this.closest('.notification-item');
+                        if (notificationItem) {
+                            notificationItem.classList.remove('unread');
+                            notificationItem.classList.add('read');
+                        }
                         showNotificationDetail(notification);
                     }
+                });
+            });
+            
+            // 为通知项添加点击事件，点击时标记为已读
+            const notificationItems = modalBody.querySelectorAll('.notification-item');
+            notificationItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const notificationId = parseInt(this.getAttribute('data-id'));
+                    // 标记通知为已读
+                    markNotificationAsRead(notificationId);
+                    // 更新通知项的样式
+                    this.classList.remove('unread');
+                    this.classList.add('read');
                 });
             });
             
@@ -1219,4 +1263,45 @@ function testContextMenu() {
     console.log('1. 点击任意网站卡片应该显示悬浮菜单');
     console.log('2. 可以在控制台中调用showContextMenu(event, "https://example.com")来测试');
     console.log('3. 移动端长按网站卡片应该显示悬浮菜单');
+}
+
+// 检查是否有新通知并弹出通知页面
+function checkAndShowNewNotifications() {
+    // 获取已读通知ID列表
+    const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+    
+    // 获取通知数据
+    fetch('notification.json')
+        .then(response => response.json())
+        .then(data => {
+            const notifications = data.notifications || [];
+            
+            if (notifications.length === 0) {
+                return;
+            }
+            
+            // 检查是否有未读通知
+            const hasUnread = notifications.some(notification => 
+                !readNotifications.includes(notification.id)
+            );
+            
+            // 如果有未读通知，则自动弹出通知页面
+            if (hasUnread) {
+                openModal('about');
+            }
+        })
+        .catch(error => {
+            console.error('检查新通知时出错:', error);
+        });
+}
+
+// 标记通知为已读
+function markNotificationAsRead(notificationId) {
+    const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+    
+    // 如果通知ID不在已读列表中，则添加
+    if (!readNotifications.includes(notificationId)) {
+        readNotifications.push(notificationId);
+        localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+    }
 }

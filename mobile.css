@@ -249,6 +249,13 @@ header h1 {
     padding: 0 2px;
 }
 
+/* 主内容容器样式 */
+#main-content-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 120px); /* 减去头部和底部dock栏的高度 */
+}
+
 /* 手风琴样式 - 移动端优化 */
 .accordion {
     background-color: #fff;
@@ -615,7 +622,7 @@ header h1 {
 .modal {
     display: none;
     background-color: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(10px);
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
@@ -1197,4 +1204,21 @@ header h1 {
 .favorites-list {
     margin: 0;
     padding: 0;
+}
+
+.notification-item.unread {
+    border-left: 4px solid #4a69bd;
+    background: rgba(74, 105, 189, 0.05);
+}
+
+.notification-item.read {
+    opacity: 0.7;
+}
+
+.notification-item.unread .notification-header h3 {
+    font-weight: bold;
+}
+
+.notification-item.read .notification-header h3 {
+    font-weight: normal;
 }

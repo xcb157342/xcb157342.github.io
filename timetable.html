@@ -138,6 +138,13 @@
             font-weight: bold;
         }
         
+        /* 为表格头部添加sticky效果，使其在滚动时固定在顶部 */
+        .timetable thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
         /* 调整周四区域位置 */
         .timetable th:nth-child(5),
         .timetable td:nth-child(5) {
@@ -452,7 +459,7 @@
             background-color: #f8f9fa;
             border-radius: 12px;
             /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
-            border: 1px solid #e9ecef;
+            /* border: 1px solid #e9ecef; */
             margin: 20px auto;
             max-width: 1400px; /* 增加最大宽度 */
         }
@@ -1135,7 +1142,6 @@
                 // 设置标签显示逻辑：打开时显示"总览"，关闭时显示"实时"
                 leftLabel.style.color = this.checked ? '#333' : '#807ef7';
                 rightLabel.style.color = this.checked ? '#807ef7' : '#333';
-                
                 // 获取实时信息容器
                 const realtimeContainer = document.getElementById('realtime-container');
                 // 根据开关状态决定是否显示实时信息容器
@@ -1265,14 +1271,29 @@
             
             // 构建通知详情HTML
             const timeStr = notification.time || '';
-            const contentStr = notification.content || '';
+            
+            // 处理内容显示，自动识别内容中的链接
+            let contentStr = notification.content || '';
+            // 使用正则表达式识别URL并转换为可点击链接，支持以右括号结尾的URL
+             const urlRegex = /(https?:\/\/[^\s\)]+)\)?/g;
+             contentStr = contentStr.replace(urlRegex, function(match, url) {
+                 // 如果URL以右括号结尾，则移除右括号
+                 if (match.endsWith(')') && !url.endsWith(')')) {
+                     return `<a href="${url}" target="_blank">${url}</a>)`;
+                 } else {
+                     return `<a href="${url}" target="_blank">${url}</a>`;
+                 }
+             });
+            
+            // 将换行符转换为HTML换行标签
+            contentStr = contentStr.replace(/\n/g, '<br>');
             
             let linkHTML = '';
             if (notification.link) {
                 linkHTML = `
                     <div class="notification-detail-link">
                         <h4>链接</h4>
-                        <a href="${notification.link}" target="_blank">${notification.link}</a>
+                        <a href="${notification.link}" target="_blank">点击访问</a>
                     </div>
                 `;
             }
@@ -1458,7 +1479,7 @@
             const weekday = weekdays[now.getDay()];
             
             // 格式化显示
-            const dateTimeStr = `${year}年${month}月${day}日 ${hours}:${minutes} ${weekday}`;
+            const dateTimeStr = `${year}年${month}月${day}日 ${weekday}`;
             
             // 更新页面显示
             const dateTimeElement = document.getElementById('currentDateTime');
