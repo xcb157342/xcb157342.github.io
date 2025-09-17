@@ -376,8 +376,8 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 24px;
+            width: 60px;
+            height: 30px;
         }
         
         .switch input {
@@ -395,19 +395,55 @@
             bottom: 0;
             background-color: #ccc;
             transition: .4s;
-            border-radius: 24px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+        
+        .slider-text {
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1;
+            transition: opacity 0.4s;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .slider-text.left {
+            left: 8px;
+            opacity: 0;
+            color: white;
+        }
+        
+        .slider-text.right {
+            right: 8px;
+            opacity: 1;
+            color: #333;
+        }
+        
+        input:checked + .slider .slider-text.left {
+            opacity: 1;
+        }
+        
+        input:checked + .slider .slider-text.right {
+            opacity: 0;
         }
         
         .slider:before {
             position: absolute;
             content: "";
-            height: 20px;
-            width: 20px;
+            height: 26px;
+            width: 26px;
             left: 2px;
             bottom: 2px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
+            z-index: 2;
         }
         
         input:checked + .slider {
@@ -415,32 +451,15 @@
         }
         
         input:checked + .slider:before {
-            transform: translateX(26px);
+            transform: translateX(32px);
         }
         
-        /* 滑动开关标签样式 */
-        .toggle-label {
-            font-size: 14px;
-            font-weight: bold;
-            margin: 0 8px;
+        input:checked + .slider .slider-text.left {
+            color: white;
+        }
+        
+        input:checked + .slider .slider-text.right {
             color: #333;
-        }
-        
-        .toggle-label.left {
-            color: #807ef7;
-        }
-        
-        .toggle-label.right {
-            color: #333;
-        }
-        
-        /* 当开关切换时，改变标签颜色 */
-        #controlsToggle:checked ~ .toggle-label.left {
-            color: #333;
-        }
-        
-        #controlsToggle:checked ~ .toggle-label.right {
-            color: #807ef7;
         }
         
         /* 当屏幕宽度小于450px时，将星期标题简化为单个字 */
@@ -613,12 +632,13 @@
             </div>
             <!-- 滑动开关 -->
             <div class="toggle-container">
-                <span class="toggle-label left">实时</span>
-                <label class="switch">
+                <label class="switch integrated">
                     <input type="checkbox" id="controlsToggle">
-                    <span class="slider"></span>
+                    <span class="slider">
+                        <span class="slider-text left">总览</span>
+                        <span class="slider-text right">实时</span>
+                    </span>
                 </label>
-                <span class="toggle-label right">总览</span>
             </div>
         </div>
     </header>
@@ -1115,16 +1135,13 @@
             const controlsToggle = document.getElementById('controlsToggle');
             const timetableControls = document.querySelector('.timetable-controls');
             const timetable = document.getElementById('timetable');
-            const leftLabel = document.querySelector('.toggle-label.left');
-            const rightLabel = document.querySelector('.toggle-label.right');
+            
+            // 设置默认状态为实时模式（未选中）
+            controlsToggle.checked = false;
             
             // 页面加载时根据开关状态设置.timetable-controls和课表的显示状态
             timetableControls.style.display = controlsToggle.checked ? 'flex' : 'none';
             timetable.style.display = controlsToggle.checked ? 'table' : 'none';
-            
-            // 设置标签显示逻辑：打开时显示"总览"，关闭时显示"实时"
-            leftLabel.style.color = controlsToggle.checked ? '#333' : '#807ef7';
-            rightLabel.style.color = controlsToggle.checked ? '#807ef7' : '#333';
             
             // 获取实时信息容器
             const realtimeContainer = document.getElementById('realtime-container');
@@ -1134,9 +1151,6 @@
             controlsToggle.addEventListener('change', function() {
                 timetableControls.style.display = this.checked ? 'flex' : 'none';
                 timetable.style.display = this.checked ? 'table' : 'none';
-                // 设置标签显示逻辑：打开时显示"总览"，关闭时显示"实时"
-                leftLabel.style.color = this.checked ? '#333' : '#807ef7';
-                rightLabel.style.color = this.checked ? '#807ef7' : '#333';
                 // 获取实时信息容器
                 const realtimeContainer = document.getElementById('realtime-container');
                 // 根据开关状态决定是否显示实时信息容器
