@@ -115,7 +115,7 @@
         }
         
         .timetable {
-            width: 850px; /* 减小宽度使课表更紧凑 */
+            width: 100%;
             border-collapse: collapse;
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -127,9 +127,9 @@
         .timetable th,
         .timetable td {
             border: 1px solid #e0e0e0;
-            padding: 8px; /* 减小内边距 */
+            /* padding: 8px;  */
             text-align: center;
-            vertical-align: top;
+            /* vertical-align: top; */
         }
         
         .timetable th {
@@ -154,9 +154,14 @@
         /* 调整课表单元格高度和样式 */
         .timetable td {
             height: 60px; /* 减小单元格高度 */
-            width: 12.5%;
             position: relative;
             padding: 3px; /* 减小内边距 */
+        }
+        
+        /* 设置星期一到星期日列的宽度相等 */
+        .timetable th:nth-child(n+2),
+        .timetable td:nth-child(n+2) {
+            width: calc((100% - 8%) / 7);
         }
         
         /* 固定每个节次的高度 */
@@ -180,7 +185,7 @@
         /* 调整课程卡片样式 - 确保填充整个单元格 */
         .course {
             background: #f0f0ff;
-            border-radius: 4px; /* 稍微减小圆角 */
+            border-radius: 2px; /* 稍微减小圆角 */
             padding: 6px; /* 减小内边距 */
             margin: 2px 0; /* 适当增加外边距 */
             font-size: 13px; /* 增大字体 */
@@ -197,7 +202,7 @@
         /* 合并课程的特殊样式 */
         .course.merged {
             min-height: 100px; /* 调整合并课程的最小高度 */
-            height: 124px; /* 调整合并课程的高度 */
+            max-height: 200px; /* 调整合并课程的高度 */
         }
         
         .course:hover {
@@ -210,7 +215,7 @@
             flex-shrink: 0;
             margin-bottom: 6px; /* 增加底部间距 */
             padding-bottom: 4px; /* 增加底部内边距 */
-            border-bottom: 1px solid rgba(128, 126, 247, 0.2); /* 添加分隔线 */
+            /* border-bottom: 1px solid rgba(128, 126, 247, 0.2); 添加分隔线 */
         }
         
         .course-title {
@@ -218,10 +223,10 @@
             color: #333;
             font-size: 14px; /* 增大标题字体 */
             line-height: 1.3; /* 调整行高 */
-            max-height: 2.6em; /* 限制最多显示两行 */
+            max-height: 5.2em; /* 限制最多显示两行 */
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
         }
         
@@ -230,13 +235,13 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-end; /* 将内容放置在底部 */
-            margin-top: auto; /* 自动调整顶部间距 */
+            margin-top: 1px; /* 自动调整顶部间距 */
         }
         
         .course-info {
             color: #666;
-            font-size: 12px; /* 增大字体 */
-            margin-bottom: 2px; /* 减小底部间距 */
+            font-size: 10px; /* 增大字体 */
+            margin-bottom: 1px; /* 减小底部间距 */
         }
         
         .course-period-container {
@@ -249,13 +254,13 @@
         .course-period {
             color: #888;
             font-size: 13px; /* 增大字体 */
-            margin-top: 2px; /* 减小顶部间距 */
+            margin-top: 1px; /* 减小顶部间距 */
         }
         
         .course-weeks {
             color: #888;
             font-size: 11px; /* 增大字体 */
-            margin-top: 2px; /* 减小顶部间距 */
+            margin-top: 1px; /* 减小顶部间距 */
         }
         
         .no-course {
@@ -268,7 +273,7 @@
         }
         
         /* 移除原有的响应式调整，保持固定样式 */
-        @media (max-width: 768px) {
+        /* @media (max-width: 768px) {
             .timetable th,
             .timetable td {
                 padding: 12px;
@@ -304,9 +309,9 @@
                 font-size: 12px;
             }
         }
-        
+         */
         /* 当屏幕宽度小于450px时，保持固定样式 */
-        @media (max-width: 450px) {
+        /* @media (max-width: 450px) {
             .timetable th,
             .timetable td {
                 height: 80px;
@@ -344,7 +349,7 @@
                 font-size: 14px;
             }
         }
-        
+         */
         /* 头部区域居中样式 */
         .search-container {
             display: flex;
@@ -463,11 +468,11 @@
         }
         
         /* 当屏幕宽度小于450px时，将星期标题简化为单个字 */
-        @media (max-width: 450px) {
+        /* @media (max-width: 450px) {
             .weekday {
                 font-size: 12px;
             }
-        }
+        } */
         
         /* 实时课程信息容器样式 */
         .realtime-cards-container {
@@ -720,7 +725,7 @@
                 <table class="timetable" id="timetable">
                     <thead>
                         <tr>
-                            <th>节次</th>
+                            <th>节</th>
                             <th class="weekday" data-full="星期一">一</th>
                             <th class="weekday" data-full="星期二">二</th>
                             <th class="weekday" data-full="星期三">三</th>
@@ -1099,10 +1104,10 @@
                                 </div>
                                 <div class="course-details">
                                     <div class="course-info">${course.classroom}</div>
-                                    <div class="course-period-container">
+                                    <!-- <div class="course-period-container">
                                         <div class="course-period">${period}-${period + mergeCount - 1}</div>
-                                    </div>
-                                    <div class="course-weeks">${course.weeks}</div>
+                                    </div> -->
+                                    <!-- <div class="course-weeks">${course.weeks}</div> -->
                                 </div>
                             `;
                             courseDiv.classList.add('merged'); // 添加merged类
