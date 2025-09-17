@@ -742,12 +742,23 @@
         let currentWeek = 1;
         const maxWeek = 16;
         
-        // 课表数据（按周次存储）
-        let timetableData = {};
+        // 课表数据（按用户和周次存储）
+        let timetableData = {
+            'H': {},
+            'X': {},
+            'Y': {}
+        };
+        
+        // 当前选中的用户
+        let currentSelectedUser = 'H';
         
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', function() {
-            loadTimetableData();
+            // 为所有用户加载课表数据
+            loadTimetableData('huxinyue.txt', 'H');
+            loadTimetableData('X.txt', 'X');
+            loadTimetableData('yangxin.txt', 'Y');
+            
             // 自动跳转到当前周次
             currentWeek = calculateCurrentWeek();
             setupEventListeners();
@@ -756,11 +767,19 @@
         });
         
         // 加载课表数据
-        function loadTimetableData(filename = 'huxinyue.txt') {
+        function loadTimetableData(filename = 'huxinyue.txt', user = null) {
+            // 如果没有指定用户，则根据文件名确定用户
+            if (!user) {
+                if (filename === 'huxinyue.txt') user = 'H';
+                else if (filename === 'X.txt') user = 'X';
+                else if (filename === 'yangxin.txt') user = 'Y';
+                else user = currentSelectedUser; // 默认使用当前选中的用户
+            }
+            
             fetch(`./timetable/${filename}`)
                 .then(response => response.text())
                 .then(data => {
-                    parseTimetableData(data);
+                    parseTimetableData(data, user);
                     renderTimetable();
                     // 数据加载完成后更新实时课程信息
                     updateDateTime();
@@ -772,13 +791,13 @@
         }
         
         // 解析课表数据
-        function parseTimetableData(textData) {
+        function parseTimetableData(textData, user = currentSelectedUser) {
             // 初始化课表数据结构（按周次存储）
-            timetableData = {};
+            timetableData[user] = {};
             
             // 为每一周初始化课表数据结构
             for (let week = 1; week <= 16; week++) {
-                timetableData[week] = Array(10).fill().map(() => Array(7).fill(null));
+                timetableData[user][week] = Array(10).fill().map(() => Array(7).fill(null));
             }
             
             // 添加调试信息
@@ -892,7 +911,7 @@
                                             // 在课表数据中设置课程信息
                                             for (let period = startPeriod; period <= endPeriod; period++) {
                                                 if (day >= 0 && day < 7 && period >= 1 && period <= 10) {
-                                                    timetableData[week][period - 1][day] = {
+                                                    timetableData[user][week][period - 1][day] = {
                                                         title: course.title,
                                                         classroom: course.classroom,
                                                         period: course.period,
@@ -926,8 +945,8 @@
             // 更新当前周数显示
             document.getElementById('currentWeek').textContent = `第${currentWeek}周`;
             
-            // 获取当前周次的课表数据
-            const weekData = timetableData[currentWeek] || Array(10).fill().map(() => Array(7).fill(null));
+            // 获取当前选中用户和周次的课表数据
+            const weekData = timetableData[currentSelectedUser] && timetableData[currentSelectedUser][currentWeek] || Array(10).fill().map(() => Array(7).fill(null));
             
             // 添加调试信息
             
@@ -1059,6 +1078,11 @@
             // 课表切换下拉菜单
             document.getElementById('timetableSelector').addEventListener('change', function() {
                 const selectedTimetable = this.value;
+                // 更新当前选中的用户
+                if (selectedTimetable === 'huxinyue.txt') currentSelectedUser = 'H';
+                else if (selectedTimetable === 'X.txt') currentSelectedUser = 'X';
+                else if (selectedTimetable === 'yangxin.txt') currentSelectedUser = 'Y';
+                
                 loadTimetableData(selectedTimetable);
                 // 自动切换到当前周次
                 currentWeek = calculateCurrentWeek();
@@ -1506,7 +1530,7 @@
         
         // 获取下一个节次
         // 获取下一个节次（查找任意时间的下一节课）
-        function getNextPeriod(now, currentWeek, timetableDayIndex) {
+        function getNextPeriod(now, currentWeek, timetableDayIndex, user = currentSelectedUser) {
             const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             
             // 首先检查今天剩余的时间
@@ -1515,8 +1539,8 @@
                 // 找到第一个开始时间晚于当前时间的节次
                 if (period.start > currentTime) {
                     // 检查今天这个节次是否有课
-                    const course = timetableData[currentWeek] && timetableData[currentWeek][i] 
-                        ? timetableData[currentWeek][i][timetableDayIndex] : null;
+                    const course = timetableData[user] && timetableData[user][currentWeek] && timetableData[user][currentWeek][i] 
+                        ? timetableData[user][currentWeek][i][timetableDayIndex] : null;
                     if (course) {
                         return { periodIndex: i, dayOffset: 0 };
                     }
@@ -1539,8 +1563,8 @@
                 
                 // 检查这一天的每一节课
                 for (let i = 0; i < classPeriods.length; i++) {
-                    const course = timetableData[futureWeek] && timetableData[futureWeek][i] 
-                        ? timetableData[futureWeek][i][futureTimetableDayIndex] : null;
+                    const course = timetableData[user] && timetableData[user][futureWeek] && timetableData[user][futureWeek][i] 
+                        ? timetableData[user][futureWeek][i][futureTimetableDayIndex] : null;
                     if (course) {
                         return { periodIndex: i, dayOffset: dayOffset };
                     }
@@ -1588,11 +1612,6 @@
             // 获取当前节次
             const currentPeriodIndex = getCurrentPeriod(now);
             
-            // 获取下一个节次
-            const nextPeriodInfo = getNextPeriod(now, currentWeek, timetableDayIndex);
-            const nextPeriodIndex = nextPeriodInfo.periodIndex;
-            const nextDayOffset = nextPeriodInfo.dayOffset;
-            
             // 定义学生和对应的课表文件
             const students = {
                 'H': 'huxinyue.txt',
@@ -1600,13 +1619,17 @@
                 'Y': 'yangxin.txt'
             };
             
-            // 为每个学生更新当前课程信息
+            // 为每个学生更新当前课程信息和下一课程信息
             for (const [student, timetableFile] of Object.entries(students)) {
+                // 获取下一个节次（为每个用户单独计算）
+                const nextPeriodInfo = getNextPeriod(now, currentWeek, timetableDayIndex, student);
+                const nextPeriodIndex = nextPeriodInfo.periodIndex;
+                const nextDayOffset = nextPeriodInfo.dayOffset;
+                
+                // 更新当前课程信息
                 updateCurrentCourseInfo(student, currentWeek, currentPeriodIndex, timetableDayIndex);
-            }
-            
-            // 为每个学生更新下一课程信息
-            for (const [student, timetableFile] of Object.entries(students)) {
+                
+                // 更新下一课程信息
                 updateNextCourseInfo(student, currentWeek, nextPeriodIndex, timetableDayIndex, nextDayOffset);
             }
             
@@ -1623,8 +1646,8 @@
             
             if (currentPeriodIndex >= 0) {
                 // 获取当前节次课程
-                const currentCourse = timetableData[currentWeek] && timetableData[currentWeek][currentPeriodIndex] 
-                    ? timetableData[currentWeek][currentPeriodIndex][timetableDayIndex] : null;
+                const currentCourse = timetableData[student] && timetableData[student][currentWeek] && timetableData[student][currentWeek][currentPeriodIndex] 
+                    ? timetableData[student][currentWeek][currentPeriodIndex][timetableDayIndex] : null;
                 
                 if (currentCourse) {
                     currentCell.innerHTML = `
@@ -1679,14 +1702,14 @@
             
             if (nextDayOffset === 0) {
                 // 今天的课程
-                nextCourse = timetableData[currentWeek] && timetableData[currentWeek][nextPeriodIndex] 
-                    ? timetableData[currentWeek][nextPeriodIndex][timetableDayIndex] : null;
+                nextCourse = timetableData[student] && timetableData[student][currentWeek] && timetableData[student][currentWeek][nextPeriodIndex] 
+                    ? timetableData[student][currentWeek][nextPeriodIndex][timetableDayIndex] : null;
             } else {
                 // 未来日期的课程
                 nextWeek = calculateCurrentWeekForDate(nextDate);
                 const futureTimetableDayIndex = nextDate.getDay() === 0 ? 6 : nextDate.getDay() - 1;
-                nextCourse = timetableData[nextWeek] && timetableData[nextWeek][nextPeriodIndex] 
-                    ? timetableData[nextWeek][nextPeriodIndex][futureTimetableDayIndex] : null;
+                nextCourse = timetableData[student] && timetableData[student][nextWeek] && timetableData[student][nextWeek][nextPeriodIndex] 
+                    ? timetableData[student][nextWeek][nextPeriodIndex][futureTimetableDayIndex] : null;
             }
             
             if (nextCourse) {
