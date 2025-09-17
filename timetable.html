@@ -1438,7 +1438,7 @@
         // 计算当前周数
         function calculateCurrentWeek() {
             // 第一周的周一日期：2025年9月8日
-            const firstWeekDate = new Date(2025, 8, 8); // 注意：月份从0开始，所以8代表9月
+            const firstWeekDate = new Date('2025-09-08T00:00:00');
             
             // 获取当前日期
             const currentDate = new Date();
@@ -1576,8 +1576,8 @@
         
         // 计算指定日期的周数
         function calculateCurrentWeekForDate(date) {
-            // 获取第一周的开始日期（2024年9月9日，星期一）
-            const firstWeekDate = new Date('2024-09-09T00:00:00');
+            // 获取第一周的开始日期（2025年9月8日，星期一）
+            const firstWeekDate = new Date('2025-09-08T00:00:00');
             
             // 计算两个日期之间的毫秒差
             const timeDiff = date.getTime() - firstWeekDate.getTime();
@@ -1717,21 +1717,22 @@
                 const periodText = classPeriods[nextPeriodIndex].name;
                 const courseName = nextCourse.title || '无课程';
                 const location = nextCourse.classroom || '无教室信息';
+                const periodTime = `${classPeriods[nextPeriodIndex].start}-${classPeriods[nextPeriodIndex].end}`;
                 
-                // 构造新的时间显示格式：第x周-周y-第z节课
-                const newPeriodText = `第${nextWeek}周-${dayText}-${periodText}`;
+                // 构造新的时间显示格式：第x周-周y 换行 节次对应的时间段
+                const newPeriodText = `第${nextWeek}周-${dayText}`;
                 
                 // 如果是未来日期，显示日期信息
                 if (nextDayOffset === 0) {
                     nextCell.innerHTML = `
                         <div class="course-title">${courseName}</div>
-                        <div class="course-time">${newPeriodText}</div>
+                        <div class="course-time">${newPeriodText}<br>${periodTime}</div>
                         <div class="course-classroom">${location}</div>
                     `;
                 } else {
                     nextCell.innerHTML = `
                         <div class="course-title">${courseName}</div>
-                        <div class="course-time">${dateText}(${dayText}) ${newPeriodText}</div>
+                        <div class="course-time">${newPeriodText}<br>${periodTime}</div>
                         <div class="course-classroom">${location}</div>
                     `;
                 }
