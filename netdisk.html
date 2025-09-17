@@ -113,8 +113,16 @@
             margin-bottom: 20px;
         }
         
-        .sort-dropdown {
-            padding: 8px 15px;
+        /* 自定义下拉列表容器 */
+        .custom-select {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        /* 自定义下拉列表选中显示区域 */
+        .custom-select-selected {
+            padding: 10px 15px;
             border-radius: 10px;
             background-color: rgba(255, 255, 255, 0.407);
             backdrop-filter: blur(10px);
@@ -122,15 +130,90 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             border: none;
             outline: none;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-select-selected:hover {
+            background-color: #f0f0ff;
+            box-shadow: 0 2px 8px rgba(128, 126, 247, 0.3);
+        }
+        
+        .custom-select-selected:after {
+            content: "";
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 10px center;
+            background-position: center;
             background-size: 16px;
-            padding-right: 35px;
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+        
+        .custom-select-selected.select-arrow-active:after {
+            transform: rotate(180deg);
+        }
+        
+        /* 自定义下拉列表选项区域 */
+        .custom-select-items {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 5px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+        }
+        
+        .custom-select-items.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 自定义下拉列表选项 */
+        .custom-select-item {
+            padding: 12px 15px;
             cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .custom-select-item:last-child {
+            border-bottom: none;
+        }
+        
+        .custom-select-item:hover {
+            background-color: rgba(128, 126, 247, 0.1);
+        }
+        
+        .custom-select-item.selected {
+            background-color: rgba(128, 126, 247, 0.2);
+            font-weight: bold;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .custom-select-selected {
+                padding: 12px 15px;
+                font-size: 16px; /* 增大字体以适应触摸 */
+            }
+            
+            .custom-select-item {
+                padding: 15px;
+                font-size: 16px; /* 增大字体以适应触摸 */
+            }
         }
         
         .file-cards {
@@ -231,14 +314,18 @@
     
     <div class="netdisk-container">
         <div class="sort-container">
-            <select class="sort-dropdown" id="sortDropdown">
-                <option value="name-asc">按名称升序</option>
-                <option value="name-desc">按名称降序</option>
-                <option value="time-asc">按时间升序</option>
-                <option value="time-desc">按时间降序</option>
-                <option value="size-asc">按大小升序</option>
-                <option value="size-desc">按大小降序</option>
-            </select>
+            <!-- 自定义下拉列表 -->
+            <div class="custom-select">
+                <div class="custom-select-selected" id="sortSelectorSelected">按名称升序</div>
+                <div class="custom-select-items" id="sortSelectorItems">
+                    <div class="custom-select-item selected" data-value="name-asc">按名称升序</div>
+                    <div class="custom-select-item" data-value="name-desc">按名称降序</div>
+                    <div class="custom-select-item" data-value="time-asc">按时间升序</div>
+                    <div class="custom-select-item" data-value="time-desc">按时间降序</div>
+                    <div class="custom-select-item" data-value="size-asc">按大小升序</div>
+                    <div class="custom-select-item" data-value="size-desc">按大小降序</div>
+                </div>
+            </div>
         </div>
         
         <div class="file-cards" id="fileCardsContainer">
@@ -388,6 +475,56 @@
             return sizeStr;
         }
         
+        // 初始化自定义下拉列表
+        function initCustomSelect() {
+            const selectedElement = document.getElementById('sortSelectorSelected');
+            const itemsElement = document.getElementById('sortSelectorItems');
+            const itemElements = document.querySelectorAll('.custom-select-item');
+            
+            // 点击选中区域显示/隐藏选项列表
+            selectedElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                itemsElement.classList.toggle('show');
+                this.classList.toggle('select-arrow-active');
+            });
+            
+            // 点击选项时的处理
+            itemElements.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // 更新选中状态
+                    itemElements.forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // 更新显示文本
+                    selectedElement.textContent = this.textContent;
+                    
+                    // 隐藏选项列表
+                    itemsElement.classList.remove('show');
+                    selectedElement.classList.remove('select-arrow-active');
+                    
+                    // 触发排序逻辑
+                    const selectedValue = this.getAttribute('data-value');
+                    handleSortChange(selectedValue);
+                });
+            });
+            
+            // 点击页面其他区域隐藏选项列表
+            document.addEventListener('click', function() {
+                itemsElement.classList.remove('show');
+                selectedElement.classList.remove('select-arrow-active');
+            });
+        }
+        
+        // 处理排序切换逻辑
+        function handleSortChange(selectedSort) {
+            const [column, direction] = selectedSort.split('-');
+            sortState.column = column;
+            sortState.direction = direction;
+            renderFileCards();
+        }
+        
         // 设置事件监听器
         function setupEventListeners() {
             // 搜索按钮点击事件
@@ -402,13 +539,8 @@
                 }
             });
             
-            // 排序下拉框事件
-            document.getElementById('sortDropdown').addEventListener('change', function() {
-                const [column, direction] = this.value.split('-');
-                sortState.column = column;
-                sortState.direction = direction;
-                renderFileCards();
-            });
+            // 初始化自定义下拉列表
+            initCustomSelect();
         }
         
         // 执行搜索

@@ -140,7 +140,7 @@
             backdrop-filter: blur(10px);
             font-size: 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border: none;
+            border: 2px solid #807ef7;
             outline: none;
             cursor: pointer;
             display: flex;
@@ -216,17 +216,17 @@
         }
         
         /* 响应式调整 */
-        @media (max-width: 768px) {
+        /* @media (max-width: 768px) {
             .custom-select-selected {
                 padding: 12px 15px;
-                font-size: 16px; /* 增大字体以适应触摸 */
+                font-size: 16px; /* 增大字体以适应触摸 
             }
             
             .custom-select-item {
                 padding: 15px;
-                font-size: 16px; /* 增大字体以适应触摸 */
+                font-size: 16px; /* 增大字体以适应触摸 
             }
-        }
+        } */
         
         .timetable {
             width: 100%;
@@ -772,7 +772,7 @@
                 </div>
                 <div class="timetable-switcher">
                     <div class="custom-select">
-                        <div class="custom-select-selected" id="timetableSelectorSelected">H</div>
+                        <div class="custom-select-selected" id="timetableSelectorSelected">H  </div>
                         <div class="custom-select-items" id="timetableSelectorItems">
                             <div class="custom-select-item selected" data-value="huxinyue.txt">H</div>
                             <div class="custom-select-item" data-value="X.txt">X</div>
