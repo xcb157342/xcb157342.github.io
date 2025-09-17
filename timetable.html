@@ -999,31 +999,91 @@
                     }
                     
                     if (course) {
-                        // 检查下一节是否有相同的课程（用于融合显示）
+                        // 检查是否有连续的相同课程（用于融合显示）
                         let isMerged = false;
+                        let mergeCount = 1; // 融合的课程节数
                         
-                        // 检查是否存在下一节，且下一节有课程，且课程信息完全相同
-                        // 只对连续的节次进行融合（如1-2, 3-4），对于跨节次课程（如2-4）只融合连续部分（如3-4）
-                        if (period < 10) {
-                            const nextCourse = weekData[period][day];
-                            if (nextCourse && 
-                                nextCourse.title === course.title && 
-                                nextCourse.classroom === course.classroom &&
-                                nextCourse.weeks === course.weeks) {
-                                // 检查当前课程是否为连续节次（如1-2, 3-4）或者跨节次课程的连续部分（如2-4中的3-4）
-                                const currentPeriodMatch = course.period.match(/(\d+)(?:-(\d+))?/);
-                                if (currentPeriodMatch) {
-                                    const currentStartPeriod = parseInt(currentPeriodMatch[1]);
-                                    const currentEndPeriod = currentPeriodMatch[2] ? parseInt(currentPeriodMatch[2]) : currentStartPeriod;
-                                    
-                                    // 如果是连续节次（如1-2, 3-4）或者当前节次是跨节次课程的连续部分开始（如2-4中的第3节）
-                                    if ((currentEndPeriod - currentStartPeriod === 1) || 
-                                        (currentEndPeriod > currentStartPeriod && period === currentStartPeriod + 1)) {
-                                        // 可以融合显示
-                                        isMerged = true;
-                                        // 标记下一节已处理
-                                        processedCells[period][day] = true;
+                        // 检查当前课程的节次范围
+                        const currentPeriodMatch = course.period.match(/(\d+)(?:-(\d+))?/);
+                        let currentStartPeriod = period;
+                        let currentEndPeriod = period;
+                        if (currentPeriodMatch) {
+                            currentStartPeriod = parseInt(currentPeriodMatch[1]);
+                            currentEndPeriod = currentPeriodMatch[2] ? parseInt(currentPeriodMatch[2]) : currentStartPeriod;
+                        }
+                        
+                        // 定义需要特殊处理的节次组合
+                        const specialCombinations = [
+                            [1, 3], [1, 4], [2, 4],  // 上午时段
+                            [5, 7], [5, 8], [6, 8]   // 下午时段
+                        ];
+                        
+                        // 检查是否匹配特殊节次组合
+                        let isSpecialCombination = false;
+                        for (const combo of specialCombinations) {
+                            if (currentStartPeriod === combo[0] && currentEndPeriod === combo[1]) {
+                                isSpecialCombination = true;
+                                mergeCount = combo[1] - combo[0] + 1;
+                                break;
+                            }
+                        }
+                        
+                        // 如果不是特殊组合，使用原有的时段分组逻辑
+                        if (!isSpecialCombination) {
+                            // 上午时段：1-4节，下午时段：5-8节，晚上时段：9-10节
+                            let maxPeriodInSession = 10;
+                            if (period <= 4) {
+                                maxPeriodInSession = 4; // 上午时段
+                            } else if (period <= 8) {
+                                maxPeriodInSession = 8; // 下午时段
+                            } else {
+                                maxPeriodInSession = 10; // 晚上时段
+                            }
+                            
+                            // 计算实际应该融合的课程节数
+                            let actualEndPeriod = Math.min(currentEndPeriod, maxPeriodInSession);
+                            mergeCount = actualEndPeriod - period + 1;
+                        }
+                        
+                        // 检查接下来的课程是否与当前课程相同
+                        let canMerge = true;
+                        for (let i = 1; i < mergeCount; i++) {
+                            if (period + i - 1 < 10) {
+                                const nextCourse = weekData[period + i - 1][day];
+                                if (!nextCourse || 
+                                    nextCourse.title !== course.title || 
+                                    nextCourse.classroom !== course.classroom ||
+                                    nextCourse.weeks !== course.weeks) {
+                                    canMerge = false;
+                                    // 对于特殊组合，如果不能完全匹配则不融合
+                                    if (isSpecialCombination) {
+                                        mergeCount = 1;
+                                        canMerge = false;
+                                        break;
                                     }
+                                    mergeCount = i; // 更新实际融合节数
+                                    break;
+                                }
+                            } else {
+                                canMerge = false;
+                                // 对于特殊组合，如果不能完全匹配则不融合
+                                if (isSpecialCombination) {
+                                    mergeCount = 1;
+                                    canMerge = false;
+                                    break;
+                                }
+                                mergeCount = i; // 更新实际融合节数
+                                break;
+                            }
+                        }
+                        
+                        // 只有当可以融合且融合节数大于1时才进行融合
+                        if (canMerge && mergeCount > 1) {
+                            isMerged = true;
+                            // 标记已处理的节次
+                            for (let i = 1; i < mergeCount; i++) {
+                                if (period + i - 1 < 10) {
+                                    processedCells[period + i - 1][day] = true;
                                 }
                             }
                         }
@@ -1032,7 +1092,7 @@
                         courseDiv.className = 'course';
                         
                         if (isMerged) {
-                            // 融合显示两节课程
+                            // 融合显示多节课程
                             courseDiv.innerHTML = `
                                 <div class="course-title-container">
                                     <div class="course-title">${course.title}</div>
@@ -1040,14 +1100,14 @@
                                 <div class="course-details">
                                     <div class="course-info">${course.classroom}</div>
                                     <div class="course-period-container">
-                                        <div class="course-period">${period}-${period+1}</div>
+                                        <div class="course-period">${period}-${period + mergeCount - 1}</div>
                                     </div>
                                     <div class="course-weeks">${course.weeks}</div>
                                 </div>
                             `;
                             courseDiv.classList.add('merged'); // 添加merged类
-                            // 设置rowSpan为2，跨两行显示
-                            cell.rowSpan = 2;
+                            // 设置rowSpan为融合的课程节数
+                            cell.rowSpan = mergeCount;
                         } else {
                             // 正常显示单节课程
                             courseDiv.innerHTML = `
@@ -1066,7 +1126,7 @@
                         
                         cell.appendChild(courseDiv);
                     } else {
-                        cell.innerHTML = '<div class="no-course">无课程</div>';
+                        cell.innerHTML = '';
                     }
                     
                     row.appendChild(cell);
