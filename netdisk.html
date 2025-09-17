@@ -268,7 +268,9 @@
                     { id: 2, name: "图片1.jpg", time: "2023-05-16 09:15", size: "1.2 MB", previewUrl: "#", downloadUrl: "#" },
                     { id: 3, name: "视频1.mp4", time: "2023-05-17 16:45", size: "45.7 MB", previewUrl: "#", downloadUrl: "#" },
                     { id: 4, name: "表格1.xlsx", time: "2023-05-18 11:20", size: "0.8 MB", previewUrl: "#", downloadUrl: "#" },
-                    { id: 5, name: "演示文稿1.pptx", time: "2023-05-19 13:10", size: "3.1 MB", previewUrl: "#", downloadUrl: "#" }
+                    { id: 5, name: "演示文稿1.pptx", time: "2023-05-19 13:10", size: "3.1 MB", previewUrl: "#", downloadUrl: "#" },
+                    { id: 6, name: "应用1.apk", time: "2023-05-20 10:30", size: "15.2 MB", previewUrl: "#", downloadUrl: "#" },
+                    { id: 7, name: "程序1.exe", time: "2023-05-21 15:45", size: "8.7 MB", previewUrl: "#", downloadUrl: "#" }
                 ];
                 renderFileCards();
             }
@@ -334,6 +336,10 @@
                     iconSrc = 'icons/ZIP.png';
                 } else if (fileName.endsWith('.mp4') || fileName.endsWith('.avi') || fileName.endsWith('.mov') || fileName.endsWith('.mkv')) {
                     iconSrc = 'icons/shiping.png';
+                } else if (fileName.endsWith('.apk')) {
+                    iconSrc = 'icons/apk.png';
+                } else if (fileName.endsWith('.exe')) {
+                    iconSrc = 'icons/exe.png';
                 }
                 
                 card.innerHTML = `

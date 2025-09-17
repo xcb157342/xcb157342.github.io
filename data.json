@@ -1,6 +1,42 @@
 {
   "categories": [
     {
+      "id": 5,
+      "name": "校园网站",
+      "websites": [
+        {
+          "id": 404,
+          "name": "思源学习空间",
+          "url": "https://ispace.xjtu.edu.cn/public-course#/",
+          "description": "思源学习空间为研究生所有教室授课课程提供课堂同步直播、常态录播、课后点播服务。同时，为研究生的在线教学提供课前、课中、课后的全流程教学服务。"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "实用工具",
+      "websites": [
+        {
+          "id": 401,
+          "name": "在线PDF转换",
+          "url": "https://smallpdf.com/",
+          "description": "各种PDF格式转换工具"
+        },
+        {
+          "id": 402,
+          "name": "TinyPNG",
+          "url": "https://tinypng.com/",
+          "description": "在线图片压缩工具"
+        },
+        {
+          "id": 403,
+          "name": "抠抠图",
+          "url": "https://www.koukoutu.com/removebgtool/all",
+          "description": "免费在线抠图、ai抠图免费在线批量抠图，无需专业设计技能，只需轻点鼠标，我们的智能算法即刻为您精准识别图像边缘， 无论是复杂背景还是细腻发丝，都能轻松剥离."
+        }
+      ]
+    },
+    {
       "id": 1,
       "name": "学习资源",
       "websites": [
@@ -21,6 +57,102 @@
           "name": "菜鸟教程",
           "url": "https://www.runoob.com/",
           "description": "提供各种编程语言基础教程"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Windows资源",
+      "websites": [
+        {
+          "id": 405,
+          "name": "我的MSDN",
+          "url": "https://www.imsdn.cn/",
+          "description": "提供 Windows 11/10/ 8/7、Windows Server 2022/2019/2016、Office、SQL SERVER等MSDN原版镜像全系列下载及安装教程。"
+        },
+        {
+          "id": 406,
+          "name": "Bandizip",
+          "url": "https://www.bandisoft.com/bandizip/",
+          "description": "Bandizip 是一个强大的多功能压缩文件管理工具，可提供很快的解压缩速度和其他各种实用功能。 这是一个免费的软件，其付费版本更是可以使用更多的实用功能。"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "AI工具",
+      "websites": [
+        {
+          "id": 407,
+          "name": "DeepSeek",
+          "url": "https://chat.deepseek.com/",
+          "description": "深度求索（DeepSeek）助力编程代码开发、创意写作、文件处理等任务，支持文件上传及长文本对话，随时为您提供高效的AI支持。"
+        },
+        {
+          "id": 408,
+          "name": "Kimi",
+          "url": "https://kimi.moonshot.cn/",
+          "description": "Kimi K2 是我们最新升级的 AI 助手，擅长推理、编程和调用工具，帮助你高效解决复杂问题。无论是工作、学习还是创作，都可以试试用 Kimi K2 来完成。"
+        },
+        {
+          "id": 409,
+          "name": "豆包",
+          "url": "https://www.doubao.com/chat/",
+          "description": "豆包是你的 AI 聊天智能对话问答助手，写作文案翻译编程全能工具。豆包为你答疑解惑，提供灵感，辅助创作，也可以和你畅聊任何你感兴趣的话题。"
+        },
+        {
+          "id": 418,
+          "name": "Trae CN",
+          "url": "https://www.trae.cn/sem?utm_source=bing&utm_medium=bing_sem&utm_campaign=486680367&utm_term=trae_bing_sem_dm_pc_cpc_pinp_hx_1&msclkid=f54ae91047681a7f7c5681da615b9f4a",
+          "description": "Trae是字节跳动推出的AI原生集成开发环境（AI IDE），旨在通过深度集成人工智能技术，显著提升开发效率，降低编程门槛。"
+        },
+        {
+          "id": 417,
+          "name": "Cursor",
+          "url": "https://cursor.com/cn",
+          "description": "Cursor是一款专为程序员设计的智能代码编辑器，由一家名为Cursor的独立公司开发。\n其核心亮点是深度集成了先进的AI（基于OpenAI的模型），能通过对话式指令辅助开发者完成编写、重构、调试和理解代码等任务，被誉为“面向AI的VS Code”。"
+        },
+        {
+          "id": 410,
+          "name": "ChatGPT",
+          "url": "https://chatgpt.com/",
+          "description": "ChatGPT是由OpenAI开发的一款人工智能聊天机器人，基于强大的GPT（生成式预训练变换模型）技术构建。"
+        },
+        {
+          "id": 411,
+          "name": "Claude",
+          "url": "https://claude.ai/new",
+          "description": "Claude是Anthropic公司开发的人工智能助手，基于 Constitutional AI 技术构建。它能以对话形式理解和生成自然语言，专注于提供有用、诚实且无害的回答。"
+        },
+        {
+          "id": 412,
+          "name": "Grok",
+          "url": "https://grok.com/?referrer=website",
+          "description": "Grok是由马斯克（Elon Musk）旗下公司xAI开发的一款人工智能聊天机器人。它的名称源自科幻小说《异乡异客》，意为“深入理解并共鸣”。"
+        },
+        {
+          "id": 413,
+          "name": "Gemini",
+          "url": "https://gemini.google.com/app/4486366c8fb169d8",
+          "description": "Gemini（原名Bard）是由谷歌（Google）深度研发的一款大型人工智能语言模型。\n它以其强大的多模态能力著称，不仅能处理和生成文本，还能理解和生成图像、音频、代码等多种信息，是谷歌对标ChatGPT等产品的核心AI助手。"
+        },
+        {
+          "id": 414,
+          "name": "通义千问",
+          "url": "https://www.tongyi.com/qianwen/",
+          "description": "通义千问是阿里巴巴集团推出的大型语言模型（LLM）助手。\n它具备强大的中文理解和生成能力，专注于在电商、办公、云计算等企业级场景中提供智能服务，同时也面向公众开放，提供对话、创作和知识问答等功能。"
+        },
+        {
+          "id": 415,
+          "name": "文心一言",
+          "url": "https://yiyan.baidu.com/",
+          "description": "文心一言（英文名：ERNIE Bot）是百度公司基于其自主研发的知识增强大模型ERNIE（Enhanced Representation through kNowledge IntEgration）打造的一款人工智能对话交互产品。\n它深度融合了百度的知识图谱和搜索能力，擅长中文场景下的理解与创作，致力于提供准确、丰富且有逻辑的对话体验。"
+        },
+        {
+          "id": 416,
+          "name": "Microsoft Copilot",
+          "url": "https://copilot.microsoft.com/",
+          "description": "Microsoft Copilot是一款由微软开发的AI智能助手，它深度集成于Windows 11、Microsoft 365、Edge浏览器等全家桶产品中。\n其核心能力基于OpenAI的GPT等先进模型，能帮助用户处理文档、总结网页、生成图像、编写代码，旨在通过自然语言交互成为用户的日常生产力伙伴。"
         }
       ]
     },
@@ -71,29 +203,6 @@
           "description": "在线配色方案生成器"
         }
       ]
-    },
-    {
-      "id": 4,
-      "name": "实用工具",
-      "websites": [
-        {
-          "id": 401,
-          "name": "在线PDF转换",
-          "url": "https://smallpdf.com/",
-          "description": "各种PDF格式转换工具"
-        },
-        {
-          "id": 402,
-          "name": "TinyPNG",
-          "url": "https://tinypng.com/",
-          "description": "在线图片压缩工具"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "name": "校园网站",
-      "websites": []
     }
   ]
 }

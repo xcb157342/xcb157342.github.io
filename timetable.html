@@ -782,15 +782,12 @@
             }
             
             // 添加调试信息
-            console.log("原始数据:", textData);
             
             // 按星期分割数据，使用开始标签作为分割点
             // 修改分割逻辑，正确处理数据格式
             const daySections = textData.split(/\r?\n\r?\n/).filter(section => section.trim() !== '' && section.includes('[星期'));
             
             // 添加调试信息
-            console.log("分割后的星期数据:", daySections);
-            console.log("星期数据段落数量:", daySections.length);
             
             // 遍历每个星期的数据
             for (let idx = 0; idx < daySections.length; idx++) {
@@ -800,8 +797,6 @@
                 const dayHeader = dayLines[0];
                 
                 // 添加调试信息
-                console.log(`处理星期数据 ${idx}:`, daySection);
-                console.log(`星期标题:`, dayHeader);
                 
                 // 确定星期几（0-6，星期一到星期日）
                 let day = -1;
@@ -814,11 +809,9 @@
                 else if (dayHeader.includes('[星期日]')) day = 6;
                 
                 // 添加调试信息
-                console.log(`星期几: ${day}`);
-                
+
                 // 如果是星期日且内容为"(无课程安排)"，则跳过
                 if (day === 6 && dayLines[1] && dayLines[1].includes('(无课程安排)')) {
-                    console.log("星期日无课程安排，跳过");
                     continue;
                 }
                 
@@ -826,8 +819,6 @@
                 const courseSections = daySection.split('!');
                 
                 // 添加调试信息
-                console.log("分割后的课程数据:", courseSections);
-                console.log("课程段落数量:", courseSections.length);
                 
                 // 解析每个课程信息
                 for (let i = 0; i < courseSections.length; i++) {
@@ -835,12 +826,9 @@
                     const courseLines = courseSection.trim().split(/\r?\n/);
                     
                     // 添加调试信息
-                    console.log(`处理课程部分 ${i}:`, courseSection);
-                    console.log(`课程行数:`, courseLines.length);
                     
                     // 跳过空的课程部分或只有星期标题的部分
                     if (courseLines.length <= 1) {
-                        console.log("课程部分为空或只有标题，跳过");
                         continue;
                     }
                     
@@ -852,9 +840,6 @@
                     
                     // 确保有足够的行来解析课程信息
                     if (startLine + 3 >= courseLines.length) {
-                        console.log("课程信息行数不足，跳过");
-                        console.log("当前行数:", courseLines.length);
-                        console.log("起始行:", startLine);
                         continue;
                     }
                     
@@ -876,11 +861,9 @@
                     }
                     
                     // 添加调试信息
-                    console.log("解析出的课程信息:", course);
                     
                     // 检查课程信息是否完整
                     if (!course.title || !course.classroom || !course.period || !course.weeks) {
-                        console.log("课程信息不完整，跳过");
                         continue;
                     }
                     
@@ -892,7 +875,6 @@
                             const endWeek = parseInt(weekMatch[2]);
                             
                             // 添加调试信息
-                            console.log(`课程周次: ${startWeek}-${endWeek}`);
                             
                             // 解析节次信息，确定课程在课表中的位置
                             if (course.period) {
@@ -902,7 +884,6 @@
                                     const endPeriod = periodMatch[2] ? parseInt(periodMatch[2]) : startPeriod;
                                     
                                     // 添加调试信息
-                                    console.log(`课程节次: ${startPeriod}-${endPeriod}`);
                                     
                                     // 检查数据有效性
                                     if (startWeek >= 1 && endWeek <= 16 && startPeriod >= 1 && endPeriod <= 10 && day >= 0 && day < 7) {
@@ -918,30 +899,23 @@
                                                         weeks: course.weeks
                                                     };
                                                     // 添加调试信息
-                                                    console.log(`添加课程: ${course.title}, 星期: ${day+1}, 节次: ${period}, 周次: ${week}`);
                                                 }
                                             }
                                         }
                                     } else {
-                                        console.log("数据超出范围，跳过");
-                                        console.log(`周次范围: ${startWeek}-${endWeek}, 节次范围: ${startPeriod}-${endPeriod}, 星期: ${day}`);
-                                    }
-                                } else {
-                                    console.log("节次信息格式不正确:", course.period);
-                                }
-                            }
-                        } else {
-                            console.log("周次信息格式不正确:", course.weeks);
                         }
+                                } else {
+                                  }
+                              }
+                          } else {
+                          }
                     }
                 }
             }
             
             // 添加调试信息，查看解析后的数据
-            console.log("解析完成的课表数据:", timetableData);
             
             // 检查第一周的数据
-            console.log("第一周课表数据:", timetableData[1]);
         }
         
         // 渲染课表
@@ -956,8 +930,6 @@
             const weekData = timetableData[currentWeek] || Array(10).fill().map(() => Array(7).fill(null));
             
             // 添加调试信息
-            console.log(`渲染第${currentWeek}周的课表`);
-            console.log("当前周次课表数据:", weekData);
             
             // 用于记录已经处理过的课程单元格，避免重复渲染
             const processedCells = Array(10).fill().map(() => Array(7).fill(false));
@@ -985,7 +957,6 @@
                     
                     // 添加调试信息
                     if (course) {
-                        console.log(`第${period}节, 星期${day+1}:`, course);
                     }
                     
                     if (course) {

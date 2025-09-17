@@ -1,11 +1,13 @@
 import sys
 import json
 import os
+import requests
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QLabel, QLineEdit, QTextEdit, QPushButton, QListWidget, 
                              QListWidgetItem, QMessageBox, QTabWidget, QFormLayout, 
                              QGroupBox, QComboBox, QFileDialog, QDialog, QInputDialog, 
-                             QTableWidget, QTableWidgetItem, QHeaderView)
+                             QTableWidget, QTableWidgetItem, QHeaderView, QTreeWidget, 
+                             QTreeWidgetItem)
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
@@ -84,6 +86,16 @@ class WebsiteManager(QMainWindow):
         # 按钮布局
         button_layout = QHBoxLayout()
         
+        # 上移按钮
+        move_up_btn = QPushButton("上移")
+        move_up_btn.clicked.connect(self.move_category_up)
+        button_layout.addWidget(move_up_btn)
+        
+        # 下移按钮
+        move_down_btn = QPushButton("下移")
+        move_down_btn.clicked.connect(self.move_category_down)
+        button_layout.addWidget(move_down_btn)
+        
         # 删除分类按钮
         delete_category_btn = QPushButton("删除选中分类")
         delete_category_btn.clicked.connect(self.delete_category)
@@ -121,6 +133,11 @@ class WebsiteManager(QMainWindow):
         self.website_desc_input.setMaximumHeight(100)
         form_layout.addRow("网站描述:", self.website_desc_input)
         
+        # 添加自动获取描述按钮
+        fetch_desc_btn = QPushButton("自动获取描述")
+        fetch_desc_btn.clicked.connect(self.fetch_website_description)
+        form_layout.addRow(fetch_desc_btn)
+        
         add_website_btn = QPushButton("添加网站")
         add_website_btn.setObjectName("add_website_btn")
         add_website_btn.clicked.connect(self.add_website)
@@ -129,15 +146,30 @@ class WebsiteManager(QMainWindow):
         form_group.setLayout(form_layout)
         layout.addWidget(form_group)
         
-        # 网站列表
+        # 网站列表（风琴式分类显示）
         list_group = QGroupBox("现有网站")
         list_layout = QVBoxLayout()
         
-        self.website_list = QListWidget()
-        list_layout.addWidget(self.website_list)
+        # 使用QTreeWidget实现风琴式分类显示
+        self.website_tree = QTreeWidget()
+        self.website_tree.setHeaderLabels(["网站名称", "URL", "描述"])
+        self.website_tree.setColumnWidth(0, 150)
+        self.website_tree.setColumnWidth(1, 200)
+        self.website_tree.setAlternatingRowColors(True)
+        list_layout.addWidget(self.website_tree)
         
         # 按钮布局
         button_layout = QHBoxLayout()
+        
+        # 上移按钮
+        move_up_btn = QPushButton("上移")
+        move_up_btn.clicked.connect(self.move_website_up)
+        button_layout.addWidget(move_up_btn)
+        
+        # 下移按钮
+        move_down_btn = QPushButton("下移")
+        move_down_btn.clicked.connect(self.move_website_down)
+        button_layout.addWidget(move_down_btn)
         
         # 编辑网站按钮
         edit_website_btn = QPushButton("编辑选中网站")
@@ -287,6 +319,103 @@ class WebsiteManager(QMainWindow):
             self.update_website_list()
             QMessageBox.information(self, "成功", "分类删除成功")
             
+    def move_category_up(self):
+        current_row = self.category_list.currentRow()
+        if current_row <= 0:
+            QMessageBox.warning(self, "操作错误", "已到达最顶部，无法上移")
+            return
+            
+        # 交换数据中的位置
+        self.data["categories"][current_row], self.data["categories"][current_row-1] = \
+            self.data["categories"][current_row-1], self.data["categories"][current_row]
+            
+        self.save_data()
+        self.update_category_list()
+        
+        # 更新选中项
+        self.category_list.setCurrentRow(current_row-1)
+        QMessageBox.information(self, "成功", "分类上移成功")
+        
+    def move_category_down(self):
+        current_row = self.category_list.currentRow()
+        if current_row >= self.category_list.count() - 1 or current_row < 0:
+            QMessageBox.warning(self, "操作错误", "已到达最底部，无法下移")
+            return
+            
+        # 交换数据中的位置
+        self.data["categories"][current_row], self.data["categories"][current_row+1] = \
+            self.data["categories"][current_row+1], self.data["categories"][current_row]
+            
+        self.save_data()
+        self.update_category_list()
+        
+        # 更新选中项
+        self.category_list.setCurrentRow(current_row+1)
+        QMessageBox.information(self, "成功", "分类下移成功")
+            
+    def fetch_website_description(self):
+        url = self.website_url_input.text().strip()
+        if not url:
+            QMessageBox.warning(self, "输入错误", "请先输入网站URL")
+            return
+            
+        # 验证URL格式
+        if not url.startswith(('http://', 'https://')):
+            QMessageBox.warning(self, "输入错误", "URL必须以http://或https://开头")
+            return
+            
+        try:
+            # 发送HTTP请求获取网页内容
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            
+            # 获取网页内容
+            content = response.text
+            
+            # 尝试提取标题
+            title = ""
+            import re
+            title_match = re.search(r'<title[^>]*>(.*?)</title>', content, re.IGNORECASE | re.DOTALL)
+            if title_match:
+                title = title_match.group(1).strip()
+            
+            # 尝试提取描述
+            description = ""
+            desc_match = re.search(r'<meta[^>]*name=["\']description["\'][^>]*content=["\']([^"\']*)["\'][^>]*>', content, re.IGNORECASE)
+            if desc_match:
+                description = desc_match.group(1).strip()
+            else:
+                # 尝试使用Open Graph描述
+                og_desc_match = re.search(r'<meta[^>]*property=["\']og:description["\'][^>]*content=["\']([^"\']*)["\'][^>]*>', content, re.IGNORECASE)
+                if og_desc_match:
+                    description = og_desc_match.group(1).strip()
+            
+            # 构建描述文本
+            desc_text = ""
+            if title:
+                desc_text += f"标题: {title}\n\n"
+            if description:
+                desc_text += f"描述: {description}\n\n"
+            if not title and not description:
+                # 如果没有找到标题和描述，尝试获取页面前200个字符
+                # 移除HTML标签
+                clean_content = re.sub(r'<[^>]+>', '', content)
+                clean_content = re.sub(r'\s+', ' ', clean_content).strip()
+                desc_text = clean_content[:200] + "..." if len(clean_content) > 200 else clean_content
+            
+            # 将获取到的描述填入描述框
+            self.website_desc_input.setPlainText(desc_text)
+            
+            QMessageBox.information(self, "成功", "已成功获取网站描述信息")
+            
+        except requests.exceptions.RequestException as e:
+            QMessageBox.warning(self, "网络错误", f"无法获取网站内容: {str(e)}")
+        except Exception as e:
+            QMessageBox.warning(self, "错误", f"获取描述时发生错误: {str(e)}")
+    
     def add_website(self):
         name = self.website_name_input.text().strip()
         url = self.website_url_input.text().strip()
@@ -340,13 +469,16 @@ class WebsiteManager(QMainWindow):
         QMessageBox.information(self, "成功", "网站添加成功")
         
     def edit_website(self):
-        current_item = self.website_list.currentItem()
+        current_item = self.website_tree.currentItem()
         if not current_item:
             QMessageBox.warning(self, "选择错误", "请先选择要编辑的网站")
             return
             
-        # 获取网站ID
-        website_id = current_item.data(Qt.UserRole)
+        # 获取网站ID（只有网站项才有UserRole数据）
+        website_id = current_item.data(0, Qt.UserRole)
+        if website_id is None:
+            QMessageBox.warning(self, "选择错误", "请选择一个具体的网站，而不是分类")
+            return
         
         # 查找网站信息
         website = None
@@ -391,10 +523,46 @@ class WebsiteManager(QMainWindow):
             add_btn.clicked.disconnect()  # 断开原有的连接
             add_btn.clicked.connect(self.update_website)
             
+        # 添加取消编辑按钮
+        cancel_edit_btn = self.website_tab.findChild(QPushButton, "cancel_edit_btn")
+        if not cancel_edit_btn:
+            cancel_edit_btn = QPushButton("取消编辑")
+            cancel_edit_btn.setObjectName("cancel_edit_btn")
+            cancel_edit_btn.clicked.connect(self.cancel_edit)
+            # 找到正确的按钮布局
+            button_layout = self.website_tab.findChild(QHBoxLayout)
+            if button_layout:
+                button_layout.addWidget(cancel_edit_btn)
+            
         # 切换到网站管理标签页
         self.tab_widget.setCurrentWidget(self.website_tab)
         
         QMessageBox.information(self, "提示", "请在表单中修改网站信息，然后点击'更新网站'按钮保存更改")
+        
+    def cancel_edit(self):
+        # 恢复添加按钮的功能和文本
+        self.restore_add_button()
+        
+        # 清空输入框
+        self.website_name_input.clear()
+        self.website_url_input.clear()
+        self.website_desc_input.clear()
+        
+        # 删除编辑状态标记
+        if hasattr(self, 'current_editing_website_id'):
+            delattr(self, 'current_editing_website_id')
+            
+        # 移除取消编辑按钮
+        cancel_edit_btn = self.website_tab.findChild(QPushButton, "cancel_edit_btn")
+        if cancel_edit_btn:
+            # 从布局中移除按钮
+            layout = cancel_edit_btn.parent()
+            if layout and hasattr(layout, 'layout') and layout.layout():
+                layout.layout().removeWidget(cancel_edit_btn)
+            # 删除按钮
+            cancel_edit_btn.deleteLater()
+            
+        QMessageBox.information(self, "提示", "已取消编辑")
         
     def update_website(self):
         name = self.website_name_input.text().strip()
@@ -493,17 +661,32 @@ class WebsiteManager(QMainWindow):
                 pass
             add_btn.clicked.connect(self.add_website)
             
+        # 移除取消编辑按钮
+        cancel_edit_btn = self.website_tab.findChild(QPushButton, "cancel_edit_btn")
+        if cancel_edit_btn:
+            # 从布局中移除按钮
+            layout = cancel_edit_btn.parent()
+            if layout and hasattr(layout, 'removeWidget'):
+                layout.removeWidget(cancel_edit_btn)
+            # 删除按钮
+            cancel_edit_btn.deleteLater()
+            
     def delete_website(self):
-        current_item = self.website_list.currentItem()
+        current_item = self.website_tree.currentItem()
         if not current_item:
             QMessageBox.warning(self, "选择错误", "请先选择要删除的网站")
             return
             
-        # 从项目文本中提取网站ID（最后一部分是ID）
-        website_id = current_item.data(Qt.UserRole)
+        # 获取网站ID（只有网站项才有UserRole数据）
+        website_id = current_item.data(0, Qt.UserRole)
+        if website_id is None:
+            QMessageBox.warning(self, "选择错误", "请选择一个具体的网站，而不是分类")
+            return
+            
+        # 获取网站名称
+        website_name = current_item.text(0)
         
         # 确认删除
-        website_name = current_item.text().split('] ')[1] if '] ' in current_item.text() else current_item.text()
         reply = QMessageBox.question(self, "确认删除", 
                                    f"确定要删除网站 '{website_name}' 吗？",
                                    QMessageBox.Yes | QMessageBox.No)
@@ -517,16 +700,129 @@ class WebsiteManager(QMainWindow):
             self.update_website_list()
             QMessageBox.information(self, "成功", "网站删除成功")
         
-    def update_website_list(self):
-        # 更新网站列表显示
-        self.website_list.clear()
+    def move_website_up(self):
+        current_item = self.website_tree.currentItem()
+        if not current_item:
+            QMessageBox.warning(self, "选择错误", "请先选择要移动的网站")
+            return
+            
+        # 获取网站ID（只有网站项才有UserRole数据）
+        website_id = current_item.data(0, Qt.UserRole)
+        if website_id is None:
+            QMessageBox.warning(self, "选择错误", "请选择一个具体的网站，而不是分类")
+            return
+            
+        # 查找网站所在的分类和位置
+        found_category = None
+        found_website_index = -1
         
         for category in self.data["categories"]:
+            for i, website in enumerate(category["websites"]):
+                if website["id"] == website_id:
+                    found_category = category
+                    found_website_index = i
+                    break
+            if found_category:
+                break
+                
+        if not found_category or found_website_index == -1:
+            QMessageBox.warning(self, "错误", "找不到选中的网站")
+            return
+            
+        # 检查是否已到达顶部
+        if found_website_index <= 0:
+            QMessageBox.warning(self, "操作错误", "已到达分类顶部，无法上移")
+            return
+            
+        # 交换位置
+        found_category["websites"][found_website_index], found_category["websites"][found_website_index-1] = \
+            found_category["websites"][found_website_index-1], found_category["websites"][found_website_index]
+            
+        self.save_data()
+        self.update_website_list()
+        
+        # 更新选中项
+        # 需要重新找到该网站项并选中
+        for i in range(self.website_tree.topLevelItemCount()):
+            category_item = self.website_tree.topLevelItem(i)
+            if category_item.data(0, Qt.UserRole) == found_category["id"]:
+                website_item = category_item.child(found_website_index-1)
+                if website_item:
+                    self.website_tree.setCurrentItem(website_item)
+                break
+                
+    def move_website_down(self):
+        current_item = self.website_tree.currentItem()
+        if not current_item:
+            QMessageBox.warning(self, "选择错误", "请先选择要移动的网站")
+            return
+            
+        # 获取网站ID（只有网站项才有UserRole数据）
+        website_id = current_item.data(0, Qt.UserRole)
+        if website_id is None:
+            QMessageBox.warning(self, "选择错误", "请选择一个具体的网站，而不是分类")
+            return
+            
+        # 查找网站所在的分类和位置
+        found_category = None
+        found_website_index = -1
+        
+        for category in self.data["categories"]:
+            for i, website in enumerate(category["websites"]):
+                if website["id"] == website_id:
+                    found_category = category
+                    found_website_index = i
+                    break
+            if found_category:
+                break
+                
+        if not found_category or found_website_index == -1:
+            QMessageBox.warning(self, "错误", "找不到选中的网站")
+            return
+            
+        # 检查是否已到达底部
+        if found_website_index >= len(found_category["websites"]) - 1:
+            QMessageBox.warning(self, "操作错误", "已到达分类底部，无法下移")
+            return
+            
+        # 交换位置
+        found_category["websites"][found_website_index], found_category["websites"][found_website_index+1] = \
+            found_category["websites"][found_website_index+1], found_category["websites"][found_website_index]
+            
+        self.save_data()
+        self.update_website_list()
+        
+        # 更新选中项
+        # 需要重新找到该网站项并选中
+        for i in range(self.website_tree.topLevelItemCount()):
+            category_item = self.website_tree.topLevelItem(i)
+            if category_item.data(0, Qt.UserRole) == found_category["id"]:
+                website_item = category_item.child(found_website_index+1)
+                if website_item:
+                    self.website_tree.setCurrentItem(website_item)
+                break
+                
+    def update_website_list(self):
+        # 更新网站列表显示（风琴式分类显示）
+        self.website_tree.clear()
+        
+        # 为每个分类创建一个顶级项
+        for category in self.data["categories"]:
+            category_item = QTreeWidgetItem(self.website_tree, [category["name"]])
+            category_item.setExpanded(True)  # 默认展开分类
+            category_item.setData(0, Qt.UserRole, category["id"])  # 存储分类ID
+            
+            # 为每个网站创建子项
             for website in category["websites"]:
-                item_text = f"[{category['name']}] {website['name']}"
-                item = QListWidgetItem(item_text)
-                item.setData(Qt.UserRole, website["id"])
-                self.website_list.addItem(item)
+                website_item = QTreeWidgetItem(category_item, [
+                    website["name"],
+                    website["url"],
+                    website["description"]
+                ])
+                website_item.setData(0, Qt.UserRole, website["id"])  # 存储网站ID
+        
+        # 展开所有分类
+        self.website_tree.expandAll()
                 
     def upload_to_github(self):
         # 获取GitHub访问令牌

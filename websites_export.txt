@@ -1,0 +1,81 @@
+网站名称: 思源学习空间
+网站URL: https://ispace.xjtu.edu.cn/public-course#/
+--------------------------------------------------
+网站名称: 在线PDF转换
+网站URL: https://smallpdf.com/
+--------------------------------------------------
+网站名称: TinyPNG
+网站URL: https://tinypng.com/
+--------------------------------------------------
+网站名称: 抠抠图
+网站URL: https://www.koukoutu.com/removebgtool/all
+--------------------------------------------------
+网站名称: MDN Web Docs
+网站URL: https://developer.mozilla.org/zh-CN/
+--------------------------------------------------
+网站名称: W3Schools
+网站URL: https://www.w3schools.com/
+--------------------------------------------------
+网站名称: 菜鸟教程
+网站URL: https://www.runoob.com/
+--------------------------------------------------
+网站名称: 我的MSDN
+网站URL: https://www.imsdn.cn/
+--------------------------------------------------
+网站名称: Bandizip
+网站URL: https://www.bandisoft.com/bandizip/
+--------------------------------------------------
+网站名称: DeepSeek
+网站URL: https://chat.deepseek.com/
+--------------------------------------------------
+网站名称: Kimi
+网站URL: https://kimi.moonshot.cn/
+--------------------------------------------------
+网站名称: 豆包
+网站URL: https://www.doubao.com/chat/
+--------------------------------------------------
+网站名称: Trae CN
+网站URL: https://www.trae.cn/sem?utm_source=bing&utm_medium=bing_sem&utm_campaign=486680367&utm_term=trae_bing_sem_dm_pc_cpc_pinp_hx_1&msclkid=f54ae91047681a7f7c5681da615b9f4a
+--------------------------------------------------
+网站名称: Cursor
+网站URL: https://cursor.com/cn
+--------------------------------------------------
+网站名称: ChatGPT
+网站URL: https://chatgpt.com/
+--------------------------------------------------
+网站名称: Claude
+网站URL: https://claude.ai/new
+--------------------------------------------------
+网站名称: Grok
+网站URL: https://grok.com/?referrer=website
+--------------------------------------------------
+网站名称: Gemini
+网站URL: https://gemini.google.com/app/4486366c8fb169d8
+--------------------------------------------------
+网站名称: 通义千问
+网站URL: https://www.tongyi.com/qianwen/
+--------------------------------------------------
+网站名称: 文心一言
+网站URL: https://yiyan.baidu.com/
+--------------------------------------------------
+网站名称: Microsoft Copilot
+网站URL: https://copilot.microsoft.com/
+--------------------------------------------------
+网站名称: GitHub
+网站URL: https://github.com/
+--------------------------------------------------
+网站名称: Stack Overflow
+网站URL: https://stackoverflow.com/
+--------------------------------------------------
+网站名称: CodePen
+网站URL: https://codepen.io/
+--------------------------------------------------
+网站名称: Unsplash
+网站URL: https://unsplash.com/
+--------------------------------------------------
+网站名称: IconFont
+网站URL: https://www.iconfont.cn/
+--------------------------------------------------
+网站名称: Coolors
+网站URL: https://coolors.co/
+--------------------------------------------------

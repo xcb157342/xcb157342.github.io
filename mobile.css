@@ -363,7 +363,8 @@ header h1 {
 }
 
 .accordion-content.active {
-    max-height: 1000px;
+    max-height: 500px; /* 限制为三张网站卡片的高度 */
+    overflow-y: auto;
     transition: max-height 0.5s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease-in;
     opacity: 1;
 }
@@ -477,6 +478,21 @@ header h1 {
     flex-direction: column;
 }
 
+/* 网站卡片头部（包含图标和标题） */
+.website-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* 网站图标样式 */
+.website-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    object-fit: contain;
+}
+
 .website-item-mobile h3 {
     color: #4a69bd;
     margin-bottom: 8px;
@@ -488,6 +504,11 @@ header h1 {
     margin-bottom: 15px;
     font-size: 0.9rem;
     flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* 搜索结果样式 */
@@ -540,6 +561,11 @@ header h1 {
     
     .website-item-mobile p {
         font-size: 0.85rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     .visit-icon-button {
@@ -561,6 +587,11 @@ header h1 {
     
     .website-item-mobile p {
         font-size: 0.8rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 

@@ -70,7 +70,10 @@ function renderCategories() {
                 <div class="website-list">
                     ${category.websites.map(website => `
                         <div class="website-item-mobile" data-url="${website.url}">
-                            <h3>${website.name}</h3>
+                            <div class="website-header">
+                                <img src="web_ico/${website.name}.png" alt="${website.name}图标" class="website-icon" onerror="this.src='web_ico/网站.png'">
+                                <h3>${website.name}</h3>
+                            </div>
                             <p>${website.description}</p>
                         </div>
                     `).join('')}
@@ -89,41 +92,63 @@ function renderCategories() {
 
 // 设置手风琴效果
 function setupAccordionListeners() {
+    let lastActiveHeader = null; // 记录上一个展开的菜单头部
+    
     const headers = document.querySelectorAll('.accordion-header');
     headers.forEach(header => {
         header.addEventListener('click', function() {
             const categoryId = this.getAttribute('data-category-id');
             const content = document.getElementById(`category-${categoryId}`);
             
-            // 切换当前项的展开/收起状态
-            this.classList.toggle('active');
-            
-            if (!content.classList.contains('active')) {
-                // 展开分类
-                content.classList.add('active');
-                // 为网站卡片添加动画延迟
-                setTimeout(() => {
-                    const websiteItems = content.querySelectorAll('.website-item-mobile');
-                    websiteItems.forEach((item, index) => {
-                        // 重置动画类
-                        item.classList.remove('card-enter');
-                        // 为每个卡片设置不同的延迟时间
-                        item.style.animationDelay = `${index * 0.05}s`;
-                        // 触发重排
-                        void item.offsetWidth;
-                        // 添加动画类
-                        item.classList.add('card-enter');
-                    });
-                }, 10);
-            } else {
-                // 收起分类
+            // 如果点击的是同一个已经展开的菜单，则收起它
+            if (this.classList.contains('active')) {
+                this.classList.remove('active');
                 content.classList.remove('active');
                 // 移除卡片动画类
                 const websiteItems = content.querySelectorAll('.website-item-mobile');
                 websiteItems.forEach(item => {
                     item.classList.remove('card-enter');
                 });
+                lastActiveHeader = null; // 重置记录
+                return;
             }
+            
+            // 如果有上一个展开的菜单，先收起它
+            if (lastActiveHeader) {
+                const lastCategoryId = lastActiveHeader.getAttribute('data-category-id');
+                const lastContent = document.getElementById(`category-${lastCategoryId}`);
+                
+                lastActiveHeader.classList.remove('active');
+                lastContent.classList.remove('active');
+                
+                // 移除上一个菜单的卡片动画类
+                const lastWebsiteItems = lastContent.querySelectorAll('.website-item-mobile');
+                lastWebsiteItems.forEach(item => {
+                    item.classList.remove('card-enter');
+                });
+            }
+            
+            // 展开当前点击的菜单
+            this.classList.add('active');
+            content.classList.add('active');
+            
+            // 记录当前展开的菜单
+            lastActiveHeader = this;
+            
+            // 为网站卡片添加动画延迟
+            setTimeout(() => {
+                const websiteItems = content.querySelectorAll('.website-item-mobile');
+                websiteItems.forEach((item, index) => {
+                    // 重置动画类
+                    item.classList.remove('card-enter');
+                    // 为每个卡片设置不同的延迟时间
+                    item.style.animationDelay = `${index * 0.05}s`;
+                    // 触发重排
+                    void item.offsetWidth;
+                    // 添加动画类
+                    item.classList.add('card-enter');
+                });
+            }, 10);
         });
     });
 }
@@ -216,7 +241,10 @@ function renderSearchResults(data) {
             <div class="website-list">
                 ${category.websites.map(website => `
                     <div class="website-item-mobile" data-url="${website.url}">
-                        <h3>${website.name}</h3>
+                        <div class="website-header">
+                            <img src="web_ico/${website.name}.png" alt="${website.name}图标" class="website-icon" onerror="this.src='web_ico/网站.png'">
+                            <h3>${website.name}</h3>
+                        </div>
                         <p>${website.description}</p>
                     </div>
                 `).join('')}
@@ -1085,7 +1113,7 @@ function renderFavoriteWebsites() {
                 };
                 img.onerror = function() {
                     // 如果图片加载失败，保留默认图标
-                    console.log('图标加载失败:', iconUrl);
+            
                 };
             }
         });
@@ -1250,19 +1278,12 @@ function testToast() {
 // 模态框功能测试函数
 function testModal() {
     // 可以通过在浏览器控制台中调用openModal('favorites')来测试模态框
-    console.log('可以在控制台中调用以下函数测试模态框:');
-    console.log('openModal("favorites") - 打开收藏夹模态框');
-    console.log('openModal("history") - 打开历史记录模态框');
-    console.log('openModal("settings") - 打开设置模态框');
-    console.log('openModal("about") - 打开关于模态框');
+
 }
 
 // 测试悬浮菜单功能
 function testContextMenu() {
-    console.log('测试悬浮菜单功能:');
-    console.log('1. 点击任意网站卡片应该显示悬浮菜单');
-    console.log('2. 可以在控制台中调用showContextMenu(event, "https://example.com")来测试');
-    console.log('3. 移动端长按网站卡片应该显示悬浮菜单');
+
 }
 
 // 检查是否有新通知并弹出通知页面
