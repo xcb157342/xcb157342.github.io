@@ -28,6 +28,7 @@
             <li class="menu-item" onclick="window.location.href='netdisk.html'"><a href="javascript:void(0);"><i class="fas fa-folder"></i> 网盘</a></li>
             <li class="menu-item" onclick="window.location.href='timetable.html'"><a href="javascript:void(0);"><i class="fas fa-table"></i> 课表</a></li>
             <li class="menu-item" data-modal="about"><a href="javascript:void(0);"><i class="fas fa-bell"></i> 通知</a></li>
+            <li class="menu-item" data-modal="tools"><a href="javascript:void(0);"><i class="fas fa-tools"></i> 工具</a></li>
             <li class="menu-item" data-modal="favorites"><a href="javascript:void(0);"><i class="fas fa-star"></i> 收藏夹</a></li>
             <li class="menu-item" data-modal="history"><a href="javascript:void(0);"><i class="fas fa-history"></i> 历史记录</a></li>
             <li class="menu-item" data-modal="settings"><a href="javascript:void(0);"><i class="fas fa-cog"></i> 设置</a></li>
@@ -150,6 +151,27 @@
                 </div>
                 <div class="modal-body" id="notification-detail-body">
                     <!-- 通知详情内容将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 工具模态框 -->
+        <div id="tools-modal" class="modal" data-modal="tools">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>工具</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <!-- 计分板工具项 -->
+                    <div class="tools-section">
+                        <div class="tools-grid">
+                            <div class="tool-item" onclick="window.location.href='scoreboard.html'">
+                                <i class="fas fa-calculator"></i>
+                                <span>计分板</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

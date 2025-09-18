@@ -837,6 +837,56 @@ header h1 {
     border-radius: 4px;
 }
 
+/* 工具模态框样式 */
+.tools-section {
+    margin-bottom: 20px;
+}
+
+.tools-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.tool-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    padding: 15px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    aspect-ratio: 1 / 1; /* 保持正方形 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tool-item:hover {
+    background-color: rgba(74, 105, 189, 0.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.tool-item i {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #4a69bd;
+}
+
+.tool-item span {
+    font-size: 14px;
+    text-align: center;
+    color: #333;
+}
+
 .modal-body::-webkit-scrollbar-thumb {
     background: rgba(74, 105, 189, 0.3);
     border-radius: 4px;
